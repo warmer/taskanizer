@@ -1,0 +1,98 @@
+
+
+<% if defined?(tickets) %>
+<div>
+  <% grouped_tickets.each do |key, ticket_list| %>
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <a href="/location/<%= key %>" class=""><%= key %></a>
+    </div>
+    <div class="panel-body">
+      <table>
+        <thead>
+          <tr>
+            <th>Ticket Name</th>
+            <th>Owner</th>
+            <th>Estimate</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+        <% ticket_list.each_with_index do |ticket, idx| %>
+          <tr>
+            <td class="well-sm">
+              <a href="/ticket/<%= ticket["id"] %>"><%= ticket["item"] %></a>
+            </td>
+            <td class="well-sm">
+              <div class="btn-group">
+                <button type="button" id="owner_butt<%= ticket["id"] %>" class="btn btn-xs btn-default"><%= ticket["owner"] || "Set Owner" %></button>
+                <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
+                  <span class="caret"></span>
+                  <span class="sr-only">Toggle Dropdown</span>
+                </button>
+                <ul class="dropdown-menu" role="menu">
+                  <% owners.each do |owner| %>
+                  <li><a onclick="
+                    $.post('/set/ticket/<%= ticket["id"] %>/attribute/owner/<%= owner %>');
+                    $('#owner_butt<%= ticket["id"] %>').text('<%= owner %>');
+                  "><%= owner %></a></li>
+                  <% end %>
+                  <li class="divider"></li>
+                  <li><a onclick="
+                    $.post('/set/ticket/<%= ticket["id"] %>/attribute/owner/');
+                    $('#owner_butt<%= ticket["id"] %>').text('Set Owner');
+                  ">Unset</a></li>
+                </ul>
+              </div>
+            </td>
+            <td class="well-sm">
+              <div class="btn-group">
+                <button type="button" id="dur_butt<%= ticket["id"] %>" class="btn btn-xs btn-default"><%= ticket["duration"] || "Set Duration" %></button>
+                <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
+                  <span class="caret"></span>
+                  <span class="sr-only">Toggle Dropdown</span>
+                </button>
+                <ul class="dropdown-menu" role="menu">
+                  <% time_options.each do |time| %>
+                  <li><a onclick="
+                    $.post('/set/ticket/<%= ticket["id"] %>/attribute/duration/<%= time %>');
+                    $('#dur_butt<%= ticket["id"] %>').text('<%= time %>');
+                  "><%= time %></a></li>
+                  <% end %>
+                  <li class="divider"></li>
+                  <li><a onclick="
+                    $.post('/set/ticket/<%= ticket["id"] %>/attribute/duration/');
+                    $('#dur_butt<%= ticket["id"] %>').text('Set Duration');
+                  ">Unset</a></li>
+                </ul>
+              </div>            
+            </td>
+            <td>
+            <% if ticket["status"] != "finished" %>
+              <button
+                type="button"
+                class="btn btn-xs btn-success"
+                onclick="document.location.href='/ticket/<%= ticket["id"] %>?status=finished';"
+                >Finish!</button>
+            <% else %>
+              <button
+                type="button"
+                class="btn btn-xs btn-warning"
+                onclick="document.location.href='/ticket/<%= ticket["id"] %>?status=reopened';"
+                >Reopen</button>
+            <% end %>
+            </td>
+          </tr>
+        <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <% end %>
+</div>
+
+
+<% else %>
+
+<% end %>
+

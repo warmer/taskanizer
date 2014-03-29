@@ -1,0 +1,33 @@
+<h1>Manage Locations</h1>
+
+<% 
+def url_encode(txt)
+  txt.gsub(/'/, "%27")
+end
+
+
+%>
+
+<% if defined?(areas) %>
+  <% areas.each do |area| %>
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <h3 class="panel-title"><%= area["name"] %></h3>
+    </div>
+    <div class="panel-body">
+      <div class="btn-group" data-toggle="buttons">
+        <% levels.each do |level| %>
+        <label 
+          class="btn btn-primary <%= (area["level"] == level) ? "active" : "" %> %>"
+          onclick="$.post('/set/location/<%= url_encode(area["name"]) %>/attribute/level/<%= level %>');">
+          <input type="radio" name="options" /><%= level %> Level
+        </label>
+        <% end %>
+      </div>
+    </div>
+  </div>
+  <% end %>
+<% else %>
+
+<% end %>
+
