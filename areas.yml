@@ -1,0 +1,25 @@
+---
+- name: Garage
+  level: Garage
+- name: Back Patio
+  level: Main
+- name: Kitchen
+  level: Main
+- name: Dining Area
+  level: Main
+- name: Living room
+  level: Main
+- name: Stairs,Hallway
+  level: Second
+- name: TK,TV Room
+  level: Second
+- name: Ken's Office
+  level: Second
+- name: Guest bathroom
+  level: Second
+- name: Master bedroom
+  level: Third
+- name: Master bathroom
+  level: Third
+- name: TK's Closet
+  level: Third

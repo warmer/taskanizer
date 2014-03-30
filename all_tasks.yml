@@ -1,0 +1,628 @@
+---
+- location: Garage
+  item: Recycle broken-down boxes
+  owner: Kenneth
+  id: 0
+  duration: 1 hour
+- location: Garage
+  item: Dispose of damaged paint
+  owner: 
+  id: 1
+- location: Garage
+  item: Post garbage disposal on Craigslist
+  owner: 
+  id: 2
+  duration: 15 minutes
+- location: Garage
+  item: Find home for parts within the Fluidmaster boxes
+  owner: 
+  id: 3
+  duration: 15 minutes
+- location: Garage
+  item: Clean welcome mat
+  owner: Kenneth
+  id: 4
+  duration: 15 minutes
+- location: Garage
+  item: Mount bicycles
+  owner: Kenneth
+  id: 5
+  duration: 3 hours
+- location: Garage
+  item: Assemble emergency kit for car
+  owner: 
+  id: 6
+- location: Back Patio
+  item: Purchase outdoor broom
+  owner: 
+  id: 7
+  duration: 1 hour
+- location: Back Patio
+  item: Post grill on Craigslist
+  owner: 
+  id: 8
+  duration: 3 hours
+- location: Back Patio
+  item: Move chairs to 3rd floor balcony
+  owner: 
+  id: 9
+  duration: 15 minutes
+- location: Back Patio
+  item: Clean floors, walls (cobwebs)
+  owner: 
+  id: 10
+  duration: 1 hour
+- location: Kitchen
+  item: Drill hole for RO filter
+  owner: 
+  id: 11
+  duration: 1 hour
+- location: Kitchen
+  item: Install RO filter
+  owner: 
+  id: 12
+  duration: 3 hours
+- location: Kitchen
+  item: Post trash compactor on Craigslist
+  owner: 
+  id: 13
+  duration: 1 hour
+- location: Kitchen
+  item: Hang mirror
+  owner: 
+  id: 14
+  duration: 15 minutes
+- location: Kitchen
+  item: Hang mail organization items
+  owner: 
+  id: 15
+  duration: 1 hour
+- location: Kitchen
+  item: Build shelf
+  owner: 
+  id: 16
+  duration: all day
+- location: Kitchen
+  item: Build container for recycle bags
+  owner: 
+  id: 17
+  duration: all day
+- location: Kitchen
+  item: Remove old alarm control
+  owner: Kenneth
+  id: 18
+  duration: 1 hour
+- location: Kitchen
+  item: Install bottle opener
+  owner: 
+  id: 19
+  duration: 15 minutes
+- location: Kitchen
+  item: Organize pantry
+  owner: 
+  id: 20
+  duration: 3 hours
+- location: Kitchen
+  item: Find place for meds
+  owner: 
+  id: 21
+  duration: 1 hour
+- location: Kitchen
+  item: Purchase compost bin carbon filters
+  owner: Kenneth
+  id: 22
+  duration: 15 minutes
+  status: finished
+- location: Dining Area
+  item: Purchase dining table
+  owner: 
+  id: 23
+  duration: 2+ days
+- location: Dining Area
+  item: Purchase dining chairs
+  owner: 
+  id: 24
+  duration: 2+ days
+- location: Dining Area
+  item: Break down boxes
+  owner: 
+  id: 25
+  duration: 15 minutes
+- location: Dining Area
+  item: Move boxes to Ken's office
+  owner: 
+  id: 26
+  duration: 15 minutes
+- location: Dining Area
+  item: Move Bissel items upstairs
+  owner: 
+  id: 27
+  duration: 15 minutes
+- location: Dining Area
+  item: Mount closet light
+  owner: 
+  id: 28
+  duration: 15 minutes
+- location: Dining Area
+  item: Return items on the table
+  owner: 
+  id: 29
+  duration: 3 hours
+- location: Dining Area
+  item: Organize laundry area
+  owner: 
+  id: 30
+- location: Dining Area
+  item: Hang photograph
+  owner: 
+  id: 31
+  duration: 15 minutes
+- location: Dining Area
+  item: Move paint to the garage
+  owner: Tatyana
+  id: 32
+  duration: 15 minutes
+  status: reopened
+- location: Dining Area
+  item: Set up emergency kit/go bags
+  owner: 
+  id: 33
+- location: Living room
+  item: File UPC codes
+  owner: 
+  id: 34
+  duration: 1 hour
+- location: Living room
+  item: Assemble wagon
+  owner: 
+  id: 35
+  duration: 3 hours
+- location: Living room
+  item: Purchase and install faceplates for outlets
+  owner: 
+  id: 36
+  duration: 3 hours
+- location: Living room
+  item: Wash windows
+  owner: 
+  id: 37
+  duration: 3 hours
+- location: Living room
+  item: Clean blinds
+  owner: 
+  id: 38
+  duration: 3 hours
+- location: Living room
+  item: Purchase curtains
+  owner: 
+  id: 39
+  duration: 3 hours
+- location: Living room
+  item: Post fan on Craigslist
+  owner: 
+  id: 40
+  duration: 1 hour
+- location: Living room
+  item: Purchase umbrella holder
+  owner: 
+  id: 41
+- location: Living room
+  item: Move bikes to garage
+  owner: 
+  id: 42
+  duration: 15 minutes
+- location: Living room
+  item: Install smoke/fire detectors
+  owner: 
+  id: 43
+  duration: 3 hours
+- location: Living room
+  item: Move bike stuff to closet in Ken's office
+  owner: 
+  id: 44
+  duration: 15 minutes
+- location: Living room
+  item: Post faucet on Craigslist
+  owner: 
+  id: 45
+  duration: 1 hour
+- location: Living room
+  item: Put wine diapers with travel stuff
+  owner: 
+  id: 46
+  duration: 15 minutes
+- location: Living room
+  item: Post laptop on eBay
+  owner: 
+  id: 47
+  duration: 3 hours
+- location: Living room
+  item: Purchase weather stripping for front door
+  owner: 
+  id: 48
+  duration: 3 hours
+- location: Living room
+  item: Install weather stripping on front door
+  owner: 
+  id: 49
+  duration: 3 hours
+- location: Living room
+  item: Purchase bar stools
+  owner: 
+  id: 50
+  duration: 3 hours
+- location: Stairs/Hallway
+  item: Frame cross-stitch
+  owner: Tatyana
+  id: 51
+- location: Stairs/Hallway
+  item: Purchase and change light bulb in hall lamp
+  owner: Kenneth
+  id: 52
+  duration: 1 hour
+- location: Stairs/Hallway
+  item: Research recycling options (cardboard, batteries, etc)
+  owner: 
+  id: 53
+- location: Stairs/Hallway
+  item: Fix doorbell
+  owner: Kenneth
+  id: 54
+  duration: 15 minutes
+- location: Stairs/Hallway
+  item: Move filing cabinet to Ken's office
+  owner: Both
+  id: 55
+  duration: 1 hour
+- location: Stairs/Hallway
+  item: Clean stair carpets
+  owner: 
+  id: 56
+  duration: 3 hours
+- location: TK/TV Room
+  item: Purchase sleeper couch
+  owner: Tatyana
+  id: 57
+- location: TK/TV Room
+  item: Move rocker to downstairs
+  owner: 
+  id: 58
+  duration: 15 minutes
+- location: TK/TV Room
+  item: Wash rocker covers
+  owner: 
+  id: 59
+  duration: 3 hours
+- location: TK/TV Room
+  item: Add new power strip for TK's office area
+  owner: Kenneth
+  id: 60
+  duration: 15 minutes
+- location: TK/TV Room
+  item: Frame photograph of WA mountains
+  owner: Tatyana
+  id: 61
+- location: TK/TV Room
+  item: Purchase hardware for properly passing cable through wall
+  owner: Kenneth
+  id: 62
+  duration: 1 hour
+- location: TK/TV Room
+  item: Wire cable through wall
+  owner: Kenneth
+  id: 63
+  duration: 3 hours
+- location: TK/TV Room
+  item: Paint magnets
+  owner: 
+  id: 64
+- location: TK/TV Room
+  item: Organize moving receipts
+  owner: Both
+  id: 65
+  duration: 3 hours
+- location: TK/TV Room
+  item: Organize tax receipts
+  owner: Both
+  id: 66
+  duration: all day
+- location: TK/TV Room
+  item: Create organization for tracking expenses
+  owner: 
+  id: 67
+  duration: 3 hours
+- location: TK/TV Room
+  item: Post coins on eBay
+  owner: Tatyana
+  id: 68
+  duration: 2+ days
+- location: TK/TV Room
+  item: Send thank-you notes with pictures
+  owner: 
+  id: 69
+- location: TK/TV Room
+  item: Send Lani and Caitlin's gift
+  owner: 
+  id: 70
+- location: TK/TV Room
+  item: Install speaker and subwoofer
+  owner: Kenneth
+  id: 71
+  duration: 15 minutes
+- location: Ken's Office
+  item: Sweep and clean patio
+  owner: 
+  id: 72
+  duration: 1 hour
+- location: Ken's Office
+  item: Replace light in patio
+  owner: Kenneth
+  id: 73
+  duration: 15 minutes
+- location: Ken's Office
+  item: Take flower pot to main level
+  owner: Kenneth
+  id: 74
+  duration: 15 minutes
+- location: Ken's Office
+  item: Dispose of cardboard
+  owner: 
+  id: 75
+- location: Ken's Office
+  item: Post moving boxes to Craigslist
+  owner: 
+  id: 76
+- location: Ken's Office
+  item: Move filing cabinet in
+  owner: Both
+  id: 77
+  duration: 1 hour
+- location: Ken's Office
+  item: Transfer and organize files
+  owner: Both
+  id: 78
+  duration: 3 hours
+- location: Ken's Office
+  item: Install faceplates on outlets
+  owner: Kenneth
+  id: 79
+  duration: 15 minutes
+- location: Ken's Office
+  item: Install peg boards
+  owner: Kenneth
+  id: 80
+  duration: 1 hour
+- location: Ken's Office
+  item: Move coins to bedroom closet
+  owner: Kenneth
+  id: 81
+  duration: 15 minutes
+- location: Ken's Office
+  item: Tidy up shelves
+  owner: Kenneth
+  id: 82
+  duration: 1 hour
+- location: Ken's Office
+  item: Organize computer cables and hard drives
+  owner: Kenneth
+  id: 83
+  duration: 15 minutes
+- location: Ken's Office
+  item: Install outlet faceplates
+  owner: Kenneth
+  id: 84
+  duration: 15 minutes
+- location: Ken's Office
+  item: Route ethernet cable through carpet better
+  owner: Kenneth
+  id: 85
+  duration: 15 minutes
+- location: Ken's Office
+  item: Restore cigars
+  owner: Kenneth
+  id: 86
+  duration: 3 hours
+- location: Ken's Office
+  item: Hang diploma
+  owner: Kenneth
+  id: 87
+  duration: 15 minutes
+- location: Ken's Office
+  item: Build shelf for household items by west window
+  owner: 
+  id: 88
+- location: Guest bathroom
+  item: Purchase trash can
+  owner: 
+  id: 89
+- location: Guest bathroom
+  item: Swap shower head
+  owner: Kenneth
+  id: 90
+  duration: 15 minutes
+- location: Guest bathroom
+  item: Clean shower
+  owner: 
+  id: 91
+  duration: 3 hours
+- location: Guest bathroom
+  item: Install faceplate for switch
+  owner: Kenneth
+  id: 92
+  duration: 15 minutes
+- location: Guest bathroom
+  item: Fix door to bedroom
+  owner: Kenneth
+  id: 93
+  duration: 1 hour
+- location: Guest bathroom
+  item: Change light fixture above sink
+  owner: 
+  id: 94
+- location: Master bedroom
+  item: Hang stamp art
+  owner: Both
+  id: 95
+  duration: 1 hour
+- location: Master bedroom
+  item: Organize Ken's closet
+  owner: Kenneth
+  id: 96
+  duration: 1 hour
+- location: Master bedroom
+  item: Install faceplates on outlets
+  owner: Kenneth
+  id: 97
+  duration: 1 hour
+- location: Master bedroom
+  item: Purchase a new battery for the hand vac
+  owner: Kenneth
+  id: 98
+  duration: 15 minutes
+- location: Master bedroom
+  item: Deep clean vacuum cleaner
+  owner: 
+  id: 99
+  duration: 3 hours
+- location: Master bedroom
+  item: Purchase vanity for TK's bed side
+  owner: 
+  id: 100
+- location: Master bedroom
+  item: Install fire extinguisher
+  owner: 
+  id: 101
+  duration: 15 minutes
+- location: Master bedroom
+  item: Put ironing board away
+  owner: 
+  id: 102
+- location: Master bedroom
+  item: Move hardware on ledge above stairs
+  owner: Kenneth
+  id: 103
+  duration: 15 minutes
+- location: Master bedroom
+  item: Move table cloths downstairs
+  owner: 
+  id: 104
+  duration: 15 minutes
+- location: Master bedroom
+  item: Move chairs onto patio
+  owner: 
+  id: 105
+  duration: 15 minutes
+- location: Master bedroom
+  item: Install chair covers onto patio chairs
+  owner: 
+  id: 106
+  duration: 15 minutes
+- location: Master bedroom
+  item: Install new balcony lamp
+  owner: Kenneth
+  id: 107
+  duration: 3 hours
+- location: Master bedroom
+  item: Move comforters to shelf by patio
+  owner: Kenneth
+  id: 108
+  duration: 15 minutes
+- location: Master bedroom
+  item: Organize ammo, coins, safe
+  owner: Kenneth
+  id: 109
+  duration: 1 hour
+- location: Master bedroom
+  item: Move mini server to Ken's office
+  owner: Kenneth
+  id: 110
+  duration: 15 minutes
+- location: Master bedroom
+  item: Return Bissel appliances to Andrey
+  owner: 
+  id: 111
+- location: Master bedroom
+  item: Make/buy bed skirt
+  owner: 
+  id: 112
+- location: Master bathroom
+  item: Seal tile in shower
+  owner: Kenneth
+  id: 113
+  duration: 3 hours
+- location: Master bathroom
+  item: Switch shower heads
+  owner: Kenneth
+  id: 114
+  duration: 15 minutes
+- location: Master bathroom
+  item: Purchase towels, maybe
+  owner: 
+  id: 115
+- location: Master bathroom
+  item: Install toilet seat
+  owner: 
+  id: 116
+  duration: 1 hour
+- location: Master bathroom
+  item: Return sink items to Home Depot
+  owner: Kenneth
+  id: 117
+  duration: 1 hour
+- location: Master bathroom
+  item: Get replacement shower cartridge through Kholer warranty
+  owner: Kenneth
+  id: 118
+  duration: 1 hour
+- location: Master bathroom
+  item: Install vent cover for HVAC
+  owner: Kenneth
+  id: 119
+  duration: 15 minutes
+- location: Master bathroom
+  item: Wash lights
+  owner: 
+  id: 120
+  duration: 1 hour
+- location: Master bathroom
+  item: Hang clock
+  owner: 
+  id: 121
+  duration: 15 minutes
+- location: Master bathroom
+  item: Install shower handle
+  owner: Kenneth
+  id: 122
+  duration: 15 minutes
+- location: Master bathroom
+  item: Fix mirror border
+  owner: Kenneth
+  id: 123
+  duration: 1 hour
+- location: Master bathroom
+  item: Clean tub and prep for bathing
+  owner: 
+  id: 124
+- location: Master bathroom
+  item: Purchase mat for floor
+  owner: 
+  id: 125
+- location: Master bathroom
+  item: Investigate options for better window privacy
+  owner: 
+  id: 126
+- location: TK's Closet
+  item: Clean home automation wiring
+  owner: Kenneth
+  id: 127
+  duration: 1 hour
+- location: TK's Closet
+  item: Paint closet walls
+  owner: Tatyana
+  id: 128
+  duration: 2+ days
+- location: TK's Closet
+  item: Install new shelves
+  owner: 
+  id: 129
+  duration: all day
