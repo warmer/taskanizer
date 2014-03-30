@@ -96,9 +96,6 @@
                 <li class="divider"></li>
               <% end %>
               <li><a href="/manage/locations">Manage Locations</a></li>
-              <% areas.each do |area| %>
-              <li><a href="<%= "#{path}&location=#{area['name']}" %>"><%= area["name"] %></a></li>
-              <% end %>
             </ul>
           </li>
           <% end %>

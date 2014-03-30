@@ -5,7 +5,7 @@
   <% grouped_tickets.each do |key, ticket_list| %>
   <div class="panel panel-default">
     <div class="panel-heading">
-      <a href="/location/<%= key %>" class=""><%= key %></a>
+      <a href="/tickets?location=<%= key %>" class=""><%= key %> <span class="badge"><%= ticket_list.size %></span></a>
     </div>
     <div class="panel-body">
       <table>
@@ -21,46 +21,36 @@
         <% ticket_list.each_with_index do |ticket, idx| %>
           <tr>
             <td class="well-sm">
-              <a 
-                href="/ticket/<%= ticket["id"] %>"
-                id="name_<%= ticket["id"] %>"
-                data-type="text"
-                data-title="Change the description"
-                data-pk="<%= ticket["id"] %>"
-                data-url="/set/ticket/<%= ticket["id"] %>/attribute/name"
-                ><%= ticket["item"] %></a>
-                    <button type="button" id="edit_<%= ticket["id"] %>" class="btn btn-default btn-xs">
-                      Edit
-                    </button>
+              <a href="/ticket/<%= ticket["id"] %>"id="name_<%= ticket["id"] %>"><%= ticket["item"] %></a>
                     
-              
-              <div id="content_<%= ticket["id"] %>" class="hide">
-                <div class="input-group">
-                  <input type="text" class="form-control" value="<%= ticket["item"] %>">
-                  <span class="input-group-btn">
-                    <button class="btn btn-default" type="button" id="save_<%= ticket["id"] %>">Go!</button>
-                    <script>
-                    $(document).ready(function() {
-                      $("#save_<%= ticket["id"] %>").click(function() {
-                        alert('hey');
-                      });
-                    });
-                    </script>
-                  </span>
+              <button class="btn btn-primary btn-xs" data-toggle="modal" data-target="#modal_<%= ticket["id"] %>">Edit</button>
+
+              <div class="modal" id="modal_<%= ticket["id"] %>" tabindex="-1" role="dialog" aria-labelledby="label_<%= ticket["id"] %>" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                      <h4 class="modal-title" id="label_<%= ticket["id"] %>">Edit Description</h4>
+                    </div>
+                    <div class="modal-body">
+                      <div class="input-group">
+                        <input type="text" class="form-control" id="desc_<%= ticket["id"] %>" value="<%= ticket["item"] %>">
+                        <span class="input-group-btn">
+                          <button class="btn btn-default" type="button" id="save_<%= ticket["id"] %>" data-dismiss="modal">Save</button>
+                          <script>
+                          $(document).ready(function() {
+                            $("#save_<%= ticket["id"] %>").click(function() {
+                              $("#name_<%= ticket["id"] %>")[0].innerText = $("#desc_<%= ticket["id"] %>")[0].value;
+                              $.post('/set/ticket/<%= ticket["id"] %>/attribute/item', {data: $("#desc_<%= ticket["id"] %>")[0].value});
+                            });
+                          });
+                          </script>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <script>
-              $(document).ready(function() {
-                var src = '';
-                $("#edit_<%= ticket["id"] %>").popover({
-                  title: 'Edit the description',
-                  content: function() {
-                    return $("#content_<%= ticket["id"] %>").html();
-                  },
-                  html: true
-                });
-              });
-              </script>
             </td>
             <td class="well-sm">
               <div class="btn-group">

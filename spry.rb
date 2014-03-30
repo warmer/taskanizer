@@ -203,9 +203,11 @@ post '/set/ticket/:id/attribute/:att' do |id, att|
   affected_ticket = $tickets[ticket_num]
   
   if affected_ticket
-    #affected_ticket[att] = val
-    #save_yaml($tickets, TASK_YAML)
+    affected_ticket[att] = params["data"]
+    save_yaml($tickets, TASK_YAML)
   end
+  
+  puts "### Resulting ticket: #{affected_ticket.to_json}"
   
   affected_ticket.to_json || ""
 end
