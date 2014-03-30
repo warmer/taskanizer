@@ -193,3 +193,19 @@ post '/set/ticket/:id/attribute/:att/:val?' do |id, att, val|
   
   affected_ticket.to_json || ""
 end
+
+post '/set/ticket/:id/attribute/:att' do |id, att|
+  ticket_num = id.to_i
+  return "" unless ticket_num.to_s == id
+  
+  puts "### PARAMS: #{params}"
+  
+  affected_ticket = $tickets[ticket_num]
+  
+  if affected_ticket
+    #affected_ticket[att] = val
+    #save_yaml($tickets, TASK_YAML)
+  end
+  
+  affected_ticket.to_json || ""
+end
