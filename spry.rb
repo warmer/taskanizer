@@ -9,8 +9,16 @@ require 'yaml'
 require 'json'
 require 'pp'
 
-TASK_YAML = 'all_tasks.yml'
-LOCATION_YAML = 'areas.yml'
+PATH = File.dirname(File.expand_path $0)
+
+TASK_YAML = File.join(PATH, 'all_tasks.yml')
+LOCATION_YAML = File.join(PATH, 'areas.yml')
+
+puts PATH
+
+set :port, 80
+set :bind, '0.0.0.0'
+set :root, PATH
 
 $tickets = []
 $areas = []
