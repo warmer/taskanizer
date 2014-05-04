@@ -1,3 +1,5 @@
+#!/usr/bin/ruby
+
 #
 # This was NOT designed to protect against malicious requests.
 #
@@ -23,33 +25,48 @@ set :root, PATH
 $tickets = []
 $areas = []
 $time_options = [
-  "15 minutes",
-  "1 hour",
-  "3 hours",
-  "all day",
-  "2+ days",
+  '15 minutes',
+  '1 hour',
+  '3 hours',
+  'all day',
+  '2+ days',
 ]
-$levels = ["Garage", "Main", "Second", "Third"]
-$owners = ["Kenneth", "Tatyana", "Both"]
+$levels = ['Garage', 'Main', 'Second', 'Third']
+$owners = ['Kenneth', 'Tatyana', 'Both']
+$action_options = {
+  'Open' => {
+    'status' => 'reopened',
+    'class' => 'btn-primary',
+  },
+  'In Progress' => {
+    'status' => 'in_progress',
+    'class' => 'btn-warning',
+  },
+  'Finished' => {
+    'status' => 'finished',
+    'class' => 'btn-success',
+  },
+}
 
 def default_locals(overrides = {})
   locals = {
     :query_string => '',
     :crumbs => {},
     :areas => $areas,
-    :grouped_areas => group_by("level", $areas),
+    :grouped_areas => group_by('level', $areas),
     :tickets => $tickets,
-    :grouped_tickets => group_by("location", $tickets),
+    :grouped_tickets => group_by('location', $tickets),
     :levels => $levels,
     :time_options => $time_options,
     :owners => $owners,
+    :action_options => $action_options,
   }
   
   locals.merge(overrides)
 end
 
 def save_yaml(ticket_list, dest)
-  puts "saving YAML"
+  puts 'saving YAML'
   File.open(dest, 'w') {|f| f.write(ticket_list.to_yaml)}
 end
 
@@ -62,7 +79,7 @@ def groups_of(key, ticket_list)
     end
   end
   
-  groups.map{|g| {"name" => g} }
+  groups.map{|g| {'name' => g} }
 end
 
 def group_by(key, map_array)
@@ -79,8 +96,8 @@ def group_by(key, map_array)
 end
 
 def where(key, value, ticket_list)
-  if value == "" || value == nil
-    ticket_list.select {|t| t[key] == nil || t[key] == "" }
+  if value == '' || value == nil
+    ticket_list.select {|t| t[key] == nil || t[key] == '' }
   else
     ticket_list.select {|t| t[key] == value}
   end
@@ -92,15 +109,15 @@ if not File.exists?(TASK_YAML)
   File.open('task_list.tsv').each do |line|
     ticket = line.split("\t");
     $tickets << {
-      "location" => ticket[0],
-      "item" => ticket[1],
-      "owner" => nil,
-      "id" => id
+      'location' => ticket[0],
+      'item' => ticket[1],
+      'owner' => nil,
+      'id' => id
     }
     id += 1
   end
   
-  $areas = groups_of("location", $tickets)
+  $areas = groups_of('location', $tickets)
   
   save_yaml($tickets, TASK_YAML)
   save_yaml($areas, LOCATION_YAML)
@@ -130,10 +147,10 @@ get '/tickets' do
     tickets = where(key, value, tickets)
   end
   
-  grouped = group_by("location", tickets)
+  grouped = group_by('location', tickets)
   
   locals = default_locals(
-    :foo => "bar",
+    :foo => 'bar',
     :crumb_root => '/tickets',
     :grouped_tickets => grouped,
     :query_string => request.query_string,
@@ -164,7 +181,7 @@ get '/ticket/:id' do |id|
   end
   
   locals = default_locals(
-    :foo => "bar",
+    :foo => "#{$tickets[num]['item']}",
     :ticket_num => num,
     :ticket => (num ? $tickets[num] : nil),
     :new_status => params['status'],
@@ -174,11 +191,23 @@ get '/ticket/:id' do |id|
   erb :ticket, :locals => locals
 end
 
+get '/new' do
+  locals = default_locals(
+    :foo => 'Create an Item',
+  )
+  
+  erb :new_ticket, :locals => locals
+end
+
+post '/new' do
+  # TODO: save variables, then redirect to the newly-created ticket
+end
+
 post '/set/location/:name/attribute/:att/:val' do |name, att, val|
   affected_area = nil
   
   $areas.each do |area|
-    if area["name"] == name
+    if area['name'] == name
       area[att] = val
       affected_area = area
     end
@@ -186,12 +215,12 @@ post '/set/location/:name/attribute/:att/:val' do |name, att, val|
   
   save_yaml($areas, LOCATION_YAML)
   
-  affected_area.to_json || ""
+  affected_area.to_json || ''
 end
 
 post '/set/ticket/:id/attribute/:att/:val?' do |id, att, val|
   ticket_num = id.to_i
-  return "" unless ticket_num.to_s == id
+  return '' unless ticket_num.to_s == id
   affected_ticket = $tickets[ticket_num]
   
   if affected_ticket
@@ -199,23 +228,23 @@ post '/set/ticket/:id/attribute/:att/:val?' do |id, att, val|
     save_yaml($tickets, TASK_YAML)
   end
   
-  affected_ticket.to_json || ""
+  affected_ticket.to_json || ''
 end
 
 post '/set/ticket/:id/attribute/:att' do |id, att|
   ticket_num = id.to_i
-  return "" unless ticket_num.to_s == id
+  return '' unless ticket_num.to_s == id
   
   puts "### PARAMS: #{params}"
   
   affected_ticket = $tickets[ticket_num]
   
   if affected_ticket
-    affected_ticket[att] = params["data"]
+    affected_ticket[att] = params['data']
     save_yaml($tickets, TASK_YAML)
   end
   
   puts "### Resulting ticket: #{affected_ticket.to_json}"
   
-  affected_ticket.to_json || ""
+  affected_ticket.to_json || ''
 end

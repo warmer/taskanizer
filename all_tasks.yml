@@ -60,6 +60,7 @@
   owner: Both
   id: 11
   duration: 1 hour
+  status: finished
 - location: Kitchen
   item: Install RO filter
   owner: Kenneth
@@ -139,6 +140,7 @@
   owner: Kenneth
   id: 26
   duration: 15 minutes
+  status: finished
 - location: Dining Area
   item: Move Bissel items upstairs
   owner: Tatyana
@@ -169,7 +171,7 @@
   owner: Tatyana
   id: 32
   duration: 15 minutes
-  status: reopened
+  status: finished
 - location: Dining Area
   item: Set up emergency kit/go bags
   owner: Tatyana
@@ -180,6 +182,7 @@
   owner: Kenneth
   id: 34
   duration: 1 hour
+  status: in_progress
 - location: Living room
   item: Assemble wagon
   owner: Tatyana
@@ -207,9 +210,10 @@
   duration: 3 hours
 - location: Living room
   item: Post fan on Craigslist
-  owner: Tatyana
+  owner: Kenneth
   id: 40
   duration: 1 hour
+  status: in_progress
 - location: Living room
   item: Purchase umbrella holder
   owner: Tatyana
@@ -572,6 +576,7 @@
   owner: Kenneth
   id: 113
   duration: 3 hours
+  status: in_progress
 - location: Master bathroom
   item: Switch shower heads
   owner: Kenneth
@@ -586,11 +591,13 @@
   owner: Tatyana
   id: 116
   duration: 1 hour
+  status: finished
 - location: Master bathroom
   item: Return sink items to Home Depot
   owner: Kenneth
   id: 117
   duration: 1 hour
+  status: finished
 - location: Master bathroom
   item: Get replacement shower cartridge through Kholer warranty
   owner: Kenneth

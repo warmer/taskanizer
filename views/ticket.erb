@@ -80,20 +80,30 @@
       </ul>
     </div>
     
-    <% if ticket["status"] == "finished" %>
-      <button type="button" class="btn btn-warning"
-    onclick="
-      $.post('/ticket/<%= ticket["id"] %>?status=<%= new_status %>&confirmed=true');
-      document.location.href='/ticket/<%= ticket["id"] %>?status=reopened'
-    ">Reopen</button>
-    <% else %>
-      <button type="button" class="btn btn-success"
-    onclick="
-      $.post('/ticket/<%= ticket["id"] %>?status=<%= new_status %>&confirmed=true');
-      document.location.href='/ticket/<%= ticket["id"] %>?status=finished'
-    ">Finish</button>
+    <% cur_status = "Open" %>
+    <% cur_class = "btn btn-primary" %>
+    <% action_options.each do |action, options| %>
+      <% if ticket["status"] == options["status"] %>
+        <% cur_status = action %>
+        <% cur_class = "btn " + options["class"] %>
+      <% end %>
     <% end %>
-
+    <div class="btn-group">
+      <button type="button" id="status_butt<%= ticket["id"] %>" class="<%= cur_class %> dropdown-toggle" data-toggle="dropdown">
+        <%= cur_status %>
+        <span class="caret"></span>
+      </button>
+      <ul class="dropdown-menu" role="menu">
+        <% action_options.each do |action, options| %>
+        <li><a onclick="
+          $.post('/set/ticket/<%= ticket["id"] %>/attribute/status/<%= options["status"] %>');
+          $('#status_butt<%= ticket["id"] %>').text('<%= action %>');
+          $('#status_butt<%= ticket["id"] %>').append(' <span class=\'caret\'></span>');
+          $('#status_butt<%= ticket["id"] %>').attr('class', 'btn ' + '<%= options["class"] %>' + ' dropdown-toggle');
+        "><%= action %></a></li>
+        <% end %>
+      </ul>
+    </div>
   </div>
 </div>
 <% else %>
