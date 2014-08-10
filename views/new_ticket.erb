@@ -3,26 +3,62 @@
     Add an Item
   </div>
   <div class="panel-body">
-  
-    <form class="navbar-form navbar-left" method="POST" role="search">
-      <div class="form-group">
-          <input type="text" class="form-control" placeholder="Item description..." id="item" value="">
-      </div>
-      <button type="submit" class="btn btn-default">Add</button>
-      <div class="form-group input-group-btn">
-        <button type="button" id="dur_butt" class="btn btn-default dropdown-toggle" data-toggle="dropdown">Set Duration <span class="caret"></span></button>
-        <ul class="dropdown-menu" role="menu">
-          <% time_options.each do |time| %>
-          <li><a onclick="
-            $('#dur_butt').html('<%= time %> <span class=&quot;caret&quot;></span>');
-          "><%= time %></a></li>
-          <% end %>
-          <li class="divider"></li>
-          <li><a onclick="
-            $('#dur_butt').html('Set Duration <span class=&quot;caret&quot;></span>');
-          ">Unset</a></li>
-        </ul>
-      </div>
+
+    <form class="navbar-form navbar-left" method="POST" action='/new'>
+    <table><tr>
+      <td>
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Item description..." id="item" name="item" value="">
+        </div>
+      </td>
+
+      <td>
+        <button type="submit" class="btn btn-default" value="Add" id="submit">Add</button>
+      </td>
+
+      <td>
+        <div class="form-group input-group-btn">
+          <button type="button" id="dur_butt" class="btn btn-default dropdown-toggle" data-toggle="dropdown">Set Duration <span class="caret"></span></button>
+          <input type="hidden" id="duration" name="duration" value="" />
+          <ul class="dropdown-menu" role="menu">
+            <% time_options.each do |time| %>
+            <li><a onclick="
+              $('#dur_butt').html('<%= time %> <span class=&quot;caret&quot;></span>');
+              $('input[name=duration]').val('<%= time %>');
+            "><%= time %></a></li>
+            <% end %>
+            <li class="divider"></li>
+            <li><a onclick="
+              $('#dur_butt').html('Set Duration <span class=&quot;caret&quot;></span>');
+              $('input[name=duration]').val('');
+            ">Unset</a></li>
+          </ul>
+        </div>
+      </td>
+
+      <td>
+        <div class="form-group input-group-btn">
+          <button type="button" id="loc_butt" class="btn btn-default dropdown-toggle" data-toggle="dropdown">Set Location <span class="caret"></span></button>
+          <input type="hidden" id="location" name="location" value="" />
+          <ul class="dropdown-menu" role="menu">
+            <% location_options.keys.each do |level| %>
+              <li class="dropdown-header"><%= level %></li>
+              <% location_options[level].each do |location| %>
+                <li><a onclick="
+                  $('#loc_butt').html('<%= location %> <span class=&quot;caret&quot;></span>');
+                  $('input[name=location]').val('<%= location %>');
+                "><%= location %></a></li>
+              <% end %>
+              <li class="divider"></li>
+            <% end %>
+            <li><a onclick="
+              $('#loc_butt').html('Set Location <span class=&quot;caret&quot;></span>');
+              $('input[name=location]').val('');
+            ">Unset</a></li>
+          </ul>
+        </div>
+      </td>
+    </tr></table>
     </form>  
     
     <!--

@@ -18,7 +18,7 @@ LOCATION_YAML = File.join(PATH, 'areas.yml')
 
 puts PATH
 
-set :port, 80
+set :port, 8070
 set :bind, '0.0.0.0'
 set :root, PATH
 
@@ -31,7 +31,6 @@ $time_options = [
   'all day',
   '2+ days',
 ]
-$levels = ['Garage', 'Main', 'Second', 'Third']
 $owners = ['Kenneth', 'Tatyana', 'Both']
 $action_options = {
   'Open' => {
@@ -47,6 +46,13 @@ $action_options = {
     'class' => 'btn-success',
   },
 }
+$location_options = {
+  'Garage' => ['Garage'],
+  'Main' => ['Back Patio', 'Kitchen', 'Dining Area', 'Living Room'],
+  'Second' => ['Stairs,Hallway', 'TK,TV Room', 'Ken\'s Office', 'Guest bathroom'],
+  'Third' => ['Master bedroom', 'Master bathroom', 'TK\'s Closet']
+}
+$levels = $location_options.keys
 
 def default_locals(overrides = {})
   locals = {
@@ -60,6 +66,7 @@ def default_locals(overrides = {})
     :time_options => $time_options,
     :owners => $owners,
     :action_options => $action_options,
+    :location_options => $location_options,
   }
   
   locals.merge(overrides)
@@ -200,7 +207,18 @@ get '/new' do
 end
 
 post '/new' do
+  ids = $tickets.map{|t| t['id']}
+  next_id = ids.max + 1
   # TODO: save variables, then redirect to the newly-created ticket
+  $tickets << {
+    'item' => params['item'],
+    'duration' => params['duration'],
+    'location' => params['location'],
+    'owner' => nil,
+    'id' => next_id,
+  }
+  save_yaml($tickets, TASK_YAML)
+  redirect to('/tickets')
 end
 
 post '/set/location/:name/attribute/:att/:val' do |name, att, val|
