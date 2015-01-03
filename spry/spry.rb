@@ -36,7 +36,7 @@ def default_locals(overrides = {})
     :time_options => $time_options,
     :owners => $owners,
   }
-  
+
   locals.merge(overrides)
 end
 
@@ -47,26 +47,26 @@ end
 
 def groups_of(key, ticket_list)
   groups = []
-  
+
   ticket_list.each do |ticket|
     if not groups.include?(ticket[key])
       groups << ticket[key]
     end
   end
-  
+
   groups.map{|g| {"name" => g} }
 end
 
 def group_by(key, map_array)
   grouped = {}
-  
+
   map_array.each do |ticket|
     if not grouped.has_key?(ticket[key])
       grouped[ticket[key]] = []
     end
     grouped[ticket[key]] << ticket
   end
-  
+
   grouped
 end
 
@@ -91,9 +91,9 @@ if not File.exists?(TASK_YAML)
     }
     id += 1
   end
-  
+
   $areas = groups_of("location", $tickets)
-  
+
   save_yaml($tickets, TASK_YAML)
   save_yaml($areas, LOCATION_YAML)
 else
@@ -112,7 +112,7 @@ puts "Loaded #{$tickets.count} tickets"
 
 get '/manage/locations' do
   locals = default_locals
-  
+
   erb :manage_locations, :locals => locals
 end
 
@@ -121,9 +121,9 @@ get '/tickets' do
   params.each do |key, value|
     tickets = where(key, value, tickets)
   end
-  
+
   grouped = group_by("location", tickets)
-  
+
   locals = default_locals(
     :foo => "bar",
     :crumb_root => '/tickets',
@@ -131,19 +131,19 @@ get '/tickets' do
     :query_string => request.query_string,
     :crumbs => params,
   )
-  
+
   erb :all_tickets, :locals => locals
 end
 
 get '/ticket/:id' do |id|
   num = id.to_i
   num = nil if num.to_s != id
-  
+
   puts "### PARAMS: #{params}"
-  
+
   confirm = false
   message = nil
-  
+
   if params['status'] and num
     if params['confirmed'] == 'true'
       $tickets[num]['status'] = params['status']
@@ -154,7 +154,7 @@ get '/ticket/:id' do |id|
       confirm = true
     end
   end
-  
+
   locals = default_locals(
     :foo => "bar",
     :ticket_num => num,
@@ -162,22 +162,22 @@ get '/ticket/:id' do |id|
     :new_status => params['status'],
     :confirm => confirm,
   )
-  
+
   erb :ticket, :locals => locals
 end
 
 post '/set/location/:name/attribute/:att/:val' do |name, att, val|
   affected_area = nil
-  
+
   $areas.each do |area|
     if area["name"] == name
       area[att] = val
       affected_area = area
     end
   end
-  
+
   save_yaml($areas, LOCATION_YAML)
-  
+
   affected_area.to_json || ""
 end
 
@@ -185,29 +185,29 @@ post '/set/ticket/:id/attribute/:att/:val?' do |id, att, val|
   ticket_num = id.to_i
   return "" unless ticket_num.to_s == id
   affected_ticket = $tickets[ticket_num]
-  
+
   if affected_ticket
     affected_ticket[att] = val
     save_yaml($tickets, TASK_YAML)
   end
-  
+
   affected_ticket.to_json || ""
 end
 
 post '/set/ticket/:id/attribute/:att' do |id, att|
   ticket_num = id.to_i
   return "" unless ticket_num.to_s == id
-  
+
   puts "### PARAMS: #{params}"
-  
+
   affected_ticket = $tickets[ticket_num]
-  
+
   if affected_ticket
     affected_ticket[att] = params["data"]
     save_yaml($tickets, TASK_YAML)
   end
-  
+
   puts "### Resulting ticket: #{affected_ticket.to_json}"
-  
+
   affected_ticket.to_json || ""
 end
