@@ -59,8 +59,10 @@ def insert(table, columns, values)
     ins = db.prepare prep
 
     puts "Inserting: #{values}"
-    result = ins.execute(values)
+    ins.execute(values)
     ins.close
+    result = db.last_insert_row_id
+    puts "Insert result: #{result}"
   rescue SQLite3::Exception => e
     puts 'SQLite Exception'
     puts e

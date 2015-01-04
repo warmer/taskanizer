@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><%= defined?(title) ? title : 'Expense Tracking' %></title>
+
+    <link rel="stylesheet" href="/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="/css/bootstrap-theme.min.css" />
+    <link rel="stylesheet"href="/css/bootstrap-editable.css" />
+    <link rel="stylesheet"href="/css/jquery.textcomplete.css" />
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="/js/jquery-2.1.0.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="/js/bootstrap.min.js"></script>
+    <script src="/js/bootstrap-editable.js"></script>
+    <!-- FROM: https://github.com/yuku-t/jquery-textcomplete -->
+    <script src="/js/jquery.textcomplete.min.js"></script>
+
+    <style>
+      /* Base styles (regardless of theme) */
+      .bs-callout {
+        margin: 20px 0;
+        padding: 15px 30px 15px 15px;
+        border-left: 5px solid #eee;
+      }
+      .bs-callout h4 {
+        margin-top: 0;
+      }
+      .bs-callout p:last-child {
+        margin-bottom: 0;
+      }
+      .bs-callout code,
+      .bs-callout .highlight {
+        background-color: #fff;
+      }
+
+      /* Themes for different contexts */
+      .bs-callout-danger {
+        background-color: #fcf2f2;
+        border-color: #dFb5b4;
+      }
+      .bs-callout-warning {
+        background-color: #fefbed;
+        border-color: #f1e7bc;
+      }
+      .bs-callout-info {
+        background-color: #f0f7fd;
+        border-color: #d0e3f0;
+      }
+      .bs-callout-danger h4 {
+        color: #B94A48;
+      }
+      .bs-callout-warning h4 {
+        color: #C09853;
+      }
+      .bs-callout-info h4 {
+        color: #3A87AD;
+      }
+    </style>
+  </head>
+  <body>
+
+  <!-- Static navbar -->
+  <div class="navbar navbar-default navbar-static-top" role="navigation">
+    <div class="container">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="#">Tasks</a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="<%= url['home'] %>">Home</a></li>
+        </ul>
+      </div><!--/.nav-collapse -->
+    </div>
+  </div>
+
+  <%= yield %>
+
+  </body>
+</html>

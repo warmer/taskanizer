@@ -13,10 +13,17 @@ require 'sqlite3'
 
 require_relative 'common.rb'
 
+PATH_ROOT = '/'
+
 class Fintrack < Sinatra::Base
 
-  def default_locals(overrides = {})
+  def agg_locals(overrides = {})
     locals = {
+      'url' => {
+        'home' => PATH_ROOT,
+        'expense_post' => PATH_ROOT + 'expense',
+        'expense_delete' => PATH_ROOT + 'expense/delete/%id%',
+      }
     }
 
     locals.merge(overrides)
@@ -35,8 +42,96 @@ class Fintrack < Sinatra::Base
   end
 
   def location_id(location)
-    location = escape(location)
-    result = execute_query "SELECT Id FROM #{LOCATION_TABLE} WHERE location='#{location}';"
+    puts "Location starting with #{location}"
+    location = location.strip.gsub(/(['])/, '\'\1')
+    puts "Location now #{location}"
+    location = location.gsub(/[^a-zA-Z0-9\/\\',\. #\$\*_\+!]/, '')
+    puts "Location finally #{location}"
+    result = execute_query "SELECT Id FROM #{LOCATION_TABLE} WHERE Name='#{location}';"
+
+    if result.size == 1
+      id = result.flatten[0]
+    elsif result.size == 0
+      vals = [location.gsub("''", "'")]
+      id = insert(LOCATION_TABLE, %w(Name), vals)
+    end
+
+    id
+  end
+
+  def tag_id(tag)
+    id = nil
+    tag = tag.strip.gsub(/(['])/, '\'\1')
+    tag = tag.gsub(/[^a-zA-Z0-9\/\\',\. #\$\*_\+!]/, '')
+    result = execute_query "SELECT Id FROM #{TAG_TABLE} WHERE Name='#{tag.downcase}';"
+
+    if result.size == 1
+      id = result.flatten[0]
+    elsif result.size == 0
+      vals = [tag]
+      id = insert(TAG_TABLE, %w(Name), vals)
+    end
+
+    id
+  end
+
+  def locations
+    result = execute_query "SELECT Name FROM #{LOCATION_TABLE};"
+    result.flatten
+  end
+
+  def tags
+    result = execute_query "SELECT Name FROM #{TAG_TABLE};"
+    result.flatten
+  end
+
+  def tags_for_expense(id)
+    result = execute_query <<-SQL
+      SELECT t.Name FROM
+        #{EXPENSE_TAG_TABLE} as et, #{TAG_TABLE} as t
+      WHERE
+        et.Expense=#{id} AND et.Tag=t.Id;
+    SQL
+
+    result.flatten
+  end
+
+  def location_for(id)
+    result = execute_query "SELECT Name FROM #{LOCATION_TABLE} WHERE Id=#{id};"
+    result.flatten[0]
+  end
+
+  def expenses(opts = {})
+    start_date = opts['start_date'] || beginning_of_month
+    end_date = opts['end_date'] || end_of_month
+
+    result = execute_query <<-SQL
+      SELECT
+        Id, Date, Amount, Location, Spender, Entered, Updated, Notes
+      FROM #{EXPENSE_TABLE}
+      WHERE Date >= #{start_date} and Date <= #{end_date}
+      ORDER BY Date ASC;
+    SQL
+
+    result.map do |res|
+      id = res[0]
+      map = {
+        'id' => res.shift,
+        'date' => res.shift.to_s,
+        'amount' => res.shift,
+        'location' => location_for(res.shift),
+        'spender' => res.shift,
+        'entered' => res.shift,
+        'updated' => res.shift,
+        'notes' => res.shift || '',
+        'tags' => tags_for_expense(id) || [],
+      }
+
+      map['date'] = "#{map['date'][0...4]}-#{map['date'][4...6]}-#{map['date'][6...8]}"
+      map['amount'] = map['amount'].to_f / 100.0
+
+      map
+    end
   end
 
   #
@@ -82,6 +177,14 @@ class Fintrack < Sinatra::Base
     locations.to_json
   end
 
+  get '/ajax/tag_id/:tag' do |tag|
+    tag_id(tag).to_s
+  end
+
+  get '/ajax/location_id/:location' do |location|
+    location_id(location).to_s
+  end
+
   get '/ajax/expenses/add' do
     vals = ['20140103000000', 1803, "This was a trip to 'Publix'"]
     res = insert(EXPENSE_TABLE, %w(Date Amount Notes), vals)
@@ -89,32 +192,7 @@ class Fintrack < Sinatra::Base
   end
 
   get '/ajax/expenses' do
-    start_date = params['start_date'] || beginning_of_month
-    end_date = params['end_date'] || end_of_month
-
-    expenses = []
-    result = execute_query <<-SQL
-      SELECT
-        Id, Date, Amount, Location, Spender, Entered, Updated, Notes
-      FROM #{EXPENSE_TABLE}
-      WHERE Date >= #{start_date} and Date <= #{end_date}
-      ORDER BY Date ASC;
-    SQL
-
-    expenses = result.map do |res|
-      {
-        'id' => res.shift,
-        'date' => res.shift,
-        'amount' => res.shift,
-        'location' => res.shift,
-        'spender' => res.shift,
-        'entered' => res.shift,
-        'updated' => res.shift,
-        'notes' => res.shift,
-      }
-    end
-
-    expenses.to_json
+    expenses(params).to_json
   end
 
   get '/ajax/dbdate' do
@@ -128,14 +206,45 @@ class Fintrack < Sinatra::Base
   #
 
   post '/expense' do
-    date = params['date']
-    amount = (params['amount'].to_f * 100).to_i
+    date = params['date'].gsub('-', '') + '000000'
+    amount = (params['amount'].to_f * 100).round.to_i
     location = params['location']
-    tags = params['tags']
+    tags = params['tags'].split(',')
     notes = params['notes']
     entered = current_datetime
     updated = current_datetime
 
+    loc_id = location_id(location)
+    tags = tags.reject {|tag| tag.strip.length == 0}
+
+    tag_ids = tags.map do |tag|
+      tag_id(tag)
+    end
+    tag_ids.reject! {|i| !i || i <= 0}
+
+    vals = [date, amount, loc_id, notes, entered, updated]
+
+    res = insert(EXPENSE_TABLE, %w(Date Amount Location Notes Entered Updated), vals)
+
+    if res > 0
+      tag_ids.each do |tag_id|
+        insert(EXPENSE_TAG_TABLE, %w(Tag Expense), [tag_id, res])
+      end
+    end
+
+    puts "Added expense ID #{res}"
+
+    puts "vals: #{vals}"
+    puts "params: #{params.inspect}"
+
+    redirect to(PATH_ROOT)
+  end
+
+  get '/expense/delete/:id' do |id|
+    res = execute_query("DELETE FROM #{EXPENSE_TABLE} WHERE Id=#{id.to_i};")
+    res = execute_query("DELETE FROM #{EXPENSE_TAG_TABLE} WHERE Expense=#{id.to_i};")
+
+    redirect to(PATH_ROOT)
   end
 
 
@@ -147,105 +256,11 @@ class Fintrack < Sinatra::Base
     'pong!'
   end
 
-  get '/manage/locations' do
-    locals = default_locals
+  get '/' do
+    page_vars = {
+      'visible_expenses' => expenses(params),
+    }
 
-    erb :manage_locations, :locals => locals
-  end
-
-  get '/tickets' do
-    tickets = $tickets.select{|t| true}
-    params.each do |key, value|
-      tickets = where(key, value, tickets)
-    end
-
-    grouped = group_by("location", tickets)
-
-    locals = default_locals(
-      :foo => "bar",
-      :crumb_root => '/tickets',
-      :grouped_tickets => grouped,
-      :query_string => request.query_string,
-      :crumbs => params,
-    )
-
-    erb :all_tickets, :locals => locals
-  end
-
-  get '/ticket/:id' do |id|
-    num = id.to_i
-    num = nil if num.to_s != id
-
-    puts "### PARAMS: #{params}"
-
-    confirm = false
-    message = nil
-
-    if params['status'] and num
-      if params['confirmed'] == 'true'
-        $tickets[num]['status'] = params['status']
-        save_yaml($tickets, TASK_YAML)
-        params.delete('status')
-        params.delete('confirmed')
-      else
-        confirm = true
-      end
-    end
-
-    locals = default_locals(
-      :foo => "bar",
-      :ticket_num => num,
-      :ticket => (num ? $tickets[num] : nil),
-      :new_status => params['status'],
-      :confirm => confirm,
-    )
-
-    erb :ticket, :locals => locals
-  end
-
-  post '/set/location/:name/attribute/:att/:val' do |name, att, val|
-    affected_area = nil
-
-    $areas.each do |area|
-      if area["name"] == name
-        area[att] = val
-        affected_area = area
-      end
-    end
-
-    save_yaml($areas, LOCATION_YAML)
-
-    affected_area.to_json || ""
-  end
-
-  post '/set/ticket/:id/attribute/:att/:val?' do |id, att, val|
-    ticket_num = id.to_i
-    return "" unless ticket_num.to_s == id
-    affected_ticket = $tickets[ticket_num]
-
-    if affected_ticket
-      affected_ticket[att] = val
-      save_yaml($tickets, TASK_YAML)
-    end
-
-    affected_ticket.to_json || ""
-  end
-
-  post '/set/ticket/:id/attribute/:att' do |id, att|
-    ticket_num = id.to_i
-    return "" unless ticket_num.to_s == id
-
-    puts "### PARAMS: #{params}"
-
-    affected_ticket = $tickets[ticket_num]
-
-    if affected_ticket
-      affected_ticket[att] = params["data"]
-      save_yaml($tickets, TASK_YAML)
-    end
-
-    puts "### Resulting ticket: #{affected_ticket.to_json}"
-
-    affected_ticket.to_json || ""
+    erb :expenses, :locals => agg_locals(page_vars)
   end
 end
