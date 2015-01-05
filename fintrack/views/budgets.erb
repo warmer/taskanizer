@@ -1,0 +1,36 @@
+<% if defined?(visible_budgets) %>
+  <table class="table table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Amount</th>
+        <th>Tag</th>
+        <th>Period<br />Start - End</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% visible_budgets.each do |budget| %>
+        <% puts "Budget: #{budget}" %>
+        <tr>
+          <td>
+            <% link_url = url['budget_edit'].gsub('%id%', budget['id'].to_s) %>
+            <a href="<%= link_url %>"><%= budget['name'] %></a>
+          </td>
+          <td>
+            <%= budget['amount'] %>
+          </td>
+          <td><%= budget['tag'] %></td>
+          <td>
+            <%= budget['period'] == 365 ? 'Yearly' : 'Monthly' %>
+            <p class="text-muted">
+              Starts <%= budget['start_date'] %>, Ends <%= budget['end_date'] %>
+            </p>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+
+<% end %>
+

@@ -48,10 +48,11 @@ def create_db
       CREATE TABLE IF NOT EXISTS #{BUDGET_TABLE}(
         Id INTEGER PRIMARY KEY,
         PeriodDays INT,
-        Start DATE,
-        End DATE,
+        StartDate DATE,
+        EndDate DATE,
         Created DATE,
         Updated DATE,
+        Tag INT,
         Amount INT,
         Name VARCHAR(255));
     SQL
@@ -61,13 +62,6 @@ def create_db
         Id INTEGER PRIMARY KEY,
         Tag INT,
         Expense INT);
-    SQL
-
-    db.execute <<-SQL
-      CREATE TABLE IF NOT EXISTS #{BUDGET_TAG_TABLE}(
-        Id INTEGER PRIMARY KEY,
-        Tag INT,
-        Budget INT);
     SQL
   rescue SQLite3::Exception => e
     puts 'SQLite Exception'

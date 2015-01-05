@@ -14,7 +14,6 @@ EXPENSE_TABLE = 'Expenses'
 LOCATION_TABLE = 'Locations'
 BUDGET_TABLE = 'Budgets'
 EXPENSE_TAG_TABLE = 'ExpenseTags'
-BUDGET_TAG_TABLE = 'BudgetTags'
 
 DATE_FORMAT = '%Y%m%d'
 TIME_FORMAT = '%H%M%S'

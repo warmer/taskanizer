@@ -77,11 +77,19 @@
       </div>
       <div class="navbar-collapse collapse">
         <ul class="nav navbar-nav">
-          <li><a href="<%= url['home'] %>">Home</a></li>
+          <li><a href="<%= url['expenses'] %>">Expenses</a></li>
+          <li><a href="<%= url['budget'] %>">Budget</a></li>
+          <li><a href="<%= url['budget_add'] %>">Add Budget</a></li>
         </ul>
       </div><!--/.nav-collapse -->
     </div>
   </div>
+
+  <% if defined?(messages) and messages.is_a?(Array) and messages.length > 0 %>
+    <% messages.each do |msg| %>
+      <div class="alert alert-<%= msg['level'] %>" role="alert"><%= msg['body'] %></div>
+    <% end %>
+  <% end %>
 
   <%= yield %>
 
