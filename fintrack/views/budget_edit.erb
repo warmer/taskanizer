@@ -1,8 +1,11 @@
 <div class="panel panel-default">
   <div class="panel-heading"><h3 class="panel-title">Add or Edit a Budget</h3></div>
   <div class="panel-body">
-    <form method="post" action="<%= url['budget_update'] %>">
+    <% id = budget['id'] %>
+    <% post_action = id > 0 ? url['budget_edit'].gsub('%id%', id.to_s) : url['budget_update'] %>
+    <form method="post" action="<%= post_action %>">
       <input type="hidden" name="id" value="<%= budget['id'] || 0 %>" />
+      <input type="hidden" name="do_update" value="1" />
 
       <div class="row">
         <div class="col-xs-6 col-md-10">

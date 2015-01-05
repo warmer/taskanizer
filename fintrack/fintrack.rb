@@ -183,10 +183,10 @@ class Fintrack < Sinatra::Base
       }
 
       %w(start_date end_date).each do |key|
-        map[key] = "#{map[key][0...4]}-#{map[key][4...6]}-#{map[key][6...8]}"
+        map[key] = date_db2ui(map[key])
       end
 
-      map['amount'] = sprintf("%0.2f", map['amount'].to_f / 100.0)
+      map['amount'] = amount_db2ui(map['amount'])
       map['tag'] = tag_for(map['tag']) if map['tag']
 
       map
@@ -195,6 +195,10 @@ class Fintrack < Sinatra::Base
 
   def expense_for(id)
     expenses('start_date' => MIN_DATE, 'end_date' => MAX_DATE, 'ids' => [id])[0]
+  end
+
+  def budget_for(id)
+    budgets('end_date_after' => MIN_DATE, 'start_date_before' => MAX_DATE, 'ids' => [id])[0]
   end
 
   #
@@ -260,38 +264,10 @@ class Fintrack < Sinatra::Base
   # GET/POST Helpers (to reduce code duplication)
   #
 
-  def budget_edit(params = {})
-    bom = beginning_of_month
-    lm = MAX_DATE
-
-    period_days = params['period_days'] || '30'
-    start_date = params['start_date'] || "#{bom[0...4]}-#{bom[4...6]}-#{bom[6...8]}"
-    end_date = params['end_date'] || "#{lm[0...4]}-#{lm[4...6]}-#{lm[6...8]}"
-    #end_date = params['end_date'] ? params['end_date'].gsub('-', '') : beginning_of_month
-    name = params['name'] || ''
-    amount = params['amount'] || '0.00'
-    tag = params['tag'] || ''
-
-    budget = {
-      'period_days' => period_days,
-      'start_date' => start_date,
-      'end_date' => end_date,
-      'name' => name,
-      'amount' => amount,
-      'tag' => tag,
-    }
-
-    page_vars = {
-      'budget' => budget,
-    }
-
-    erb :budget_edit, :locals => agg_locals(page_vars)
-  end
-
   def expense_edit(params = {})
     id = (params['id'] || '0').to_i
-    date = params['date'].gsub('-', '') + '000000'
-    amount = (params['amount'].to_f * 100).round.to_i
+    date = date_ui2db(params['date'])
+    amount = amount_ui2db(params['amount'])
     location = params['location']
     tags = params['tags'].split(',')
     notes = params['notes']
@@ -300,8 +276,8 @@ class Fintrack < Sinatra::Base
 
     if id > 0
       if params['confirm_delete']
-        res = execute_query("DELETE FROM #{EXPENSE_TABLE} WHERE Id=#{id.to_i};")
-        res = execute_query("DELETE FROM #{EXPENSE_TAG_TABLE} WHERE Expense=#{id.to_i};")
+        res = execute_query("DELETE FROM #{EXPENSE_TABLE} WHERE Id=#{id};")
+        res = execute_query("DELETE FROM #{EXPENSE_TAG_TABLE} WHERE Expense=#{id};")
         id = 0
       else
         loc_id = location_id(location)
@@ -318,7 +294,7 @@ class Fintrack < Sinatra::Base
 
     if id > 0
       # delete all current tag associations
-      execute_query("DELETE FROM #{EXPENSE_TAG_TABLE} WHERE Expense=#{id.to_i};")
+      execute_query("DELETE FROM #{EXPENSE_TAG_TABLE} WHERE Expense=#{id};")
 
       tags = tags.reject {|tag| tag.strip.length == 0}
       tag_ids = tags.map do |tag|
@@ -337,6 +313,67 @@ class Fintrack < Sinatra::Base
     end
   end
 
+  def budget_update(budget)
+    # convert fields to be database-friendly
+    id = budget['id']
+    period = budget['period']
+    start_date = date_ui2db(budget['start_date'])
+    end_date = date_ui2db(budget['end_date'])
+    updated = current_datetime
+    name = budget['name']
+    amount = amount_ui2db(budget['amount'])
+    tag = budget['tag']
+    tag = tag_id(tag) if tag != ''
+
+    if id > 0
+      vals = [id, period, start_date, end_date, updated, name, amount, tag]
+      id = update(BUDGET_TABLE, %w(Id PeriodDays StartDate EndDate Updated Name Amount Tag), vals, id)
+    else
+      created = current_datetime
+      vals = [period, start_date, end_date, created, updated, name, amount, tag]
+      id = insert(BUDGET_TABLE, %w(PeriodDays StartDate EndDate Created Updated Name Amount Tag), vals)
+    end
+
+    if id > 0
+      redirect to("#{PATH_ROOT}budget/edit/#{id}?updated=true")
+    end
+  end
+
+  def budget_edit(params = {})
+    id = (params['id'] || 0).to_i
+    puts "Given a budget: #{id.inspect}" if id
+    bom = beginning_of_month
+    lm = MAX_DATE
+
+    period_days = (params['period_days'] || 30).to_i
+    start_date = params['start_date'] || "#{bom[0...4]}-#{bom[4...6]}-#{bom[6...8]}"
+    end_date = params['end_date'] || "#{lm[0...4]}-#{lm[4...6]}-#{lm[6...8]}"
+    #end_date = params['end_date'] ? params['end_date'].gsub('-', '') : beginning_of_month
+    name = params['name'] || ''
+    amount = params['amount'] || '0.00'
+    tag = params['tag'] || ''
+
+    budget = {
+      'id' => id,
+      'period_days' => period_days,
+      'start_date' => start_date,
+      'end_date' => end_date,
+      'name' => name,
+      'amount' => amount,
+      'tag' => tag,
+    }
+
+    if params['do_update']
+      budget_update(budget)
+    else
+      page_vars = {
+        'budget' => budget,
+      }
+
+      erb :budget_edit, :locals => agg_locals(page_vars)
+    end
+  end
+
   #
   # POST
   #
@@ -350,6 +387,10 @@ class Fintrack < Sinatra::Base
   end
 
   post '/budget' do
+    budget_edit(params)
+  end
+
+  post '/budget/edit/:id' do |id|
     budget_edit(params)
   end
 
@@ -391,7 +432,7 @@ class Fintrack < Sinatra::Base
   end
 
   get '/budget/edit/:id' do |id|
-    budget = budgets(ids: [id])[0]
+    budget = budget_for(id)
 
     budget_edit(budget.merge(params))
   end

@@ -21,6 +21,22 @@ TIME_FORMAT = '%H%M%S'
 MAX_DATE = '99991231235959'
 MIN_DATE = '00000101000000'
 
+def date_ui2db(date)
+  date.gsub('-', '') + '000000'
+end
+
+def date_db2ui(date)
+  "#{date[0...4]}-#{date[4...6]}-#{date[6...8]}"
+end
+
+def amount_ui2db(amount)
+  (amount.to_f * 100).round.to_i
+end
+
+def amount_db2ui(amount)
+  sprintf('%0.2f', amount.to_f / 100.0)
+end
+
 def execute_query(query)
   result = nil
 
