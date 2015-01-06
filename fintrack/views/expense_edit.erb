@@ -3,8 +3,9 @@
 <div class="panel panel-default">
   <div class="panel-heading"><h3 class="panel-title">Edit an Expense</h3></div>
   <div class="panel-body">
-    <form method="post" action="<%= url['expense_update'] %>">
+    <form method="post" action="<%= url['expense_edit'].gsub('%id%', expense['id'].to_s) %>">
       <input type="hidden" name="id" value="<%= expense['id'] %>" />
+      <input type="hidden" name="edited" value="true" />
 
       <div class="row">
         <div class="col-xs-6 col-md-2">
@@ -62,7 +63,7 @@
               $('#tags').textcomplete([
                 {
                   words: <%= tags.to_json %>,
-                  match: /\b(\w{1,})$/,
+                  match: /\b([^,]{1,})$/,
                   search: function(term, callback) {
                     callback($.map(this.words, function(word) {
                       return word.toLowerCase().indexOf(term.toLowerCase()) === 0 ? word : null;

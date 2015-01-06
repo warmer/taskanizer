@@ -23,18 +23,19 @@ class Fintrack < Sinatra::Base
 
   def agg_locals(overrides = {})
     locals = {
+      # TODO: sinatra might have a mechanism for creating route-aware URLs...
       'url' => {
         'expenses' => PATH_ROOT + 'expenses',
-        'expense_post' => PATH_ROOT + 'expense',
+        'expense_add' => PATH_ROOT + 'expense/add',
         'expense_delete' => PATH_ROOT + 'expense/delete/%id%',
         'expense_edit' => PATH_ROOT + 'expense/edit/%id%',
-        'expense_update' => PATH_ROOT + 'expense/update',
 
         'budget' => PATH_ROOT + 'budget',
-        'budget_delete' => PATH_ROOT + 'budget/delete/%id%',
         'budget_add' => PATH_ROOT + 'budget/add',
+        'budget_delete' => PATH_ROOT + 'budget/delete/%id%',
         'budget_edit' => PATH_ROOT + 'budget/edit/%id%',
-        'budget_update' => PATH_ROOT + 'budget/update',
+
+        'tag' => PATH_ROOT + 'tag/%id%',
       }
     }
 
@@ -51,6 +52,10 @@ class Fintrack < Sinatra::Base
 
   def current_datetime
     DateTime.now.strftime("#{DATE_FORMAT}#{TIME_FORMAT}")
+  end
+
+  def date_today
+    DateTime.now.strftime('%Y-%m-%d')
   end
 
   def location_id(location)
@@ -99,13 +104,20 @@ class Fintrack < Sinatra::Base
 
   def tags_for_expense(id)
     result = execute_query <<-SQL
-      SELECT t.Name FROM
+      SELECT t.Id, t.Name FROM
         #{EXPENSE_TAG_TABLE} as et, #{TAG_TABLE} as t
       WHERE
         et.Expense=#{id} AND et.Tag=t.Id;
     SQL
 
-    result.flatten
+    result = result.map do |tag|
+      {
+        'id' => tag[0],
+        'name' => tag[1],
+      }
+    end
+
+    result
   end
 
   def location_for(id)
@@ -128,7 +140,7 @@ class Fintrack < Sinatra::Base
         Id, Date, Amount, Location, Spender, Entered, Updated, Notes
       FROM #{EXPENSE_TABLE}
       WHERE Date >= #{start_date} and Date <= #{end_date}
-      #{ids ? "and Id IN (#{ids.join(',')})" : ''}
+        #{ids ? "and Id IN (#{ids.join(',')})" : ''}
       ORDER BY Date ASC;
     SQL
 
@@ -157,6 +169,7 @@ class Fintrack < Sinatra::Base
     end_date_after = opts['end_date_after'] || beginning_of_month
     start_date_before = opts['start_date_before'] || end_of_month
     ids = opts['ids']
+    tag_id = opts['tag_id']
 
     result = execute_query <<-SQL
       SELECT
@@ -165,6 +178,7 @@ class Fintrack < Sinatra::Base
       WHERE
         StartDate <= #{start_date_before} AND EndDate >= #{end_date_after}
         #{ids ? "AND Id IN (#{ids.join(',')})" : ''}
+        #{tag_id ? "AND Tag=#{tag_id}" : ''}
       ORDER BY Amount DESC;
     SQL
 
@@ -187,10 +201,24 @@ class Fintrack < Sinatra::Base
       end
 
       map['amount'] = amount_db2ui(map['amount'])
-      map['tag'] = tag_for(map['tag']) if map['tag']
+      if map['tag']
+        map['tag'] = {
+          'id' => map['tag'],
+          'name' => tag_for(map['tag']),
+        }
+      end
 
       map
     end
+  end
+
+  def budget_with_tag(id)
+    budgets('start_date' => MIN_DATE, 'end_date' => MAX_DATE, 'tag_id' => id)[0]
+  end
+
+  def expenses_with_tag(id)
+    eids = execute_query("SELECT Expense FROM ExpenseTags WHERE Tag=#{id};").flatten
+    expenses('start_date' => MIN_DATE, 'end_date' => MAX_DATE, 'ids' => eids)
   end
 
   def expense_for(id)
@@ -273,6 +301,7 @@ class Fintrack < Sinatra::Base
     notes = params['notes']
     entered = current_datetime
     updated = current_datetime
+    edited = params['edited']
 
     if id > 0
       if params['confirm_delete']
@@ -306,10 +335,18 @@ class Fintrack < Sinatra::Base
       tag_ids.each do |tag_id|
         insert(EXPENSE_TAG_TABLE, %w(Tag Expense), [tag_id, id])
       end
+    end
 
-      redirect to("#{PATH_ROOT}expense/edit/#{id}?updated=true")
+    if edited
+      if id > 0
+        redirect to("#{PATH_ROOT}expense/edit/#{id}?updated=true")
+      else
+        #deleted
+        redirect to(PATH_ROOT + 'expenses?expense_deleted=true')
+      end
     else
       redirect to(PATH_ROOT)
+        redirect to(PATH_ROOT + 'expenses?expense_added=true')
     end
   end
 
@@ -363,7 +400,11 @@ class Fintrack < Sinatra::Base
       'tag' => tag,
     }
 
-    if params['do_update']
+    # TODO: delete budget?
+    if params['confirm_delete'] and id > 0
+      execute_query("DELETE FROM #{BUDGET_TABLE} WHERE Id=#{id};")
+      redirect to("#{PATH_ROOT}budget")
+    elsif params['do_update']
       budget_update(budget)
     else
       page_vars = {
@@ -378,26 +419,21 @@ class Fintrack < Sinatra::Base
   # POST
   #
 
-  post '/expense' do
+  post '/expense/add' do
     expense_edit(params)
   end
 
-  post '/expense/update' do
+  post '/expense/edit/:id' do
     expense_edit(params)
   end
 
-  post '/budget' do
+  post '/budget/add' do
     budget_edit(params)
   end
 
   post '/budget/edit/:id' do |id|
     budget_edit(params)
   end
-
-  post '/budget/update' do
-    budget_edit(params)
-  end
-
 
   #
   # GET
@@ -412,11 +448,27 @@ class Fintrack < Sinatra::Base
   end
 
   get '/expenses' do
+    messages = []
+    messages << {'level' => 'success', 'body' => 'Expense has been added'} if params['expense_added']
+    messages << {'level' => 'info', 'body' => 'Expense has been added'} if params['expense_deleted']
     page_vars = {
       'visible_expenses' => expenses(params),
+      'today' => date_today,
+      'messages' => messages,
     }
 
     erb :expenses, :locals => agg_locals(page_vars)
+  end
+
+  get '/expense/edit/:id' do |id|
+    messages = []
+    messages << {'level' => 'success', 'body' => 'Expense has been upated'} if params['updated']
+    page_vars = {
+      'expense' => expense_for(id),
+      'messages' => messages,
+    }
+
+    erb :expense_edit, :locals => agg_locals(page_vars)
   end
 
   get '/budget' do
@@ -437,15 +489,24 @@ class Fintrack < Sinatra::Base
     budget_edit(budget.merge(params))
   end
 
-  get '/expense/edit/:id' do |id|
+  get '/tag/:id' do |id|
+    tag_name = tag_for(id)
+    budget = budget_with_tag(id)
+    expenses = expenses_with_tag(id)
+
+    puts "Budget for #{tag_name}: #{budget}"
+    puts "Expenses for #{tag_name}: #{expenses}"
+
     messages = []
     messages << {'level' => 'success', 'body' => 'Expense has been upated'} if params['updated']
     page_vars = {
-      'expense' => expense_for(id),
+      'tag' => {'id' => id, 'name' => tag_name},
+      'visible_budgets' => budget ? [budget] : [],
+      'visible_expenses' => expenses,
       'messages' => messages,
     }
 
-    erb :expense_edit, :locals => agg_locals(page_vars)
+    erb :tag, :locals => agg_locals(page_vars)
   end
 
 end

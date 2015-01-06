@@ -2,7 +2,7 @@
   <div class="panel-heading"><h3 class="panel-title">Add or Edit a Budget</h3></div>
   <div class="panel-body">
     <% id = budget['id'] %>
-    <% post_action = id > 0 ? url['budget_edit'].gsub('%id%', id.to_s) : url['budget_update'] %>
+    <% post_action = id > 0 ? url['budget_edit'].gsub('%id%', id.to_s) : url['budget_add'] %>
     <form method="post" action="<%= post_action %>">
       <input type="hidden" name="id" value="<%= budget['id'] || 0 %>" />
       <input type="hidden" name="do_update" value="1" />
@@ -70,12 +70,12 @@
           <div class="form-group">
             <label for="tag">Tag</label>
             <textarea class="form-control" rows="1"
-              aria-label="Tag" name="tag" id="tag" /><%= budget['tag'] %></textarea>
+              aria-label="Tag" name="tag" id="tag" /><%= budget['tag']['name'] %></textarea>
             <script>
               $('#tag').textcomplete([
                 {
                   words: <%= tags.to_json %>,
-                  match: /^(\w{1,})$/,
+                  match: /\b([^,]{1,})$/,
                   search: function(term, callback) {
                     callback($.map(this.words, function(word) {
                       return word.toLowerCase().indexOf(term.toLowerCase()) >= 0 ? word : null;

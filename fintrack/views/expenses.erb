@@ -1,7 +1,7 @@
 <div class="panel panel-default">
   <div class="panel-heading"><h3 class="panel-title">Add a Purchase or Bill</h3></div>
   <div class="panel-body">
-    <form method="post" action="<%= url['expense_post'] %>">
+    <form method="post" action="<%= url['expense_add'] %>">
 
       <div class="row">
         <div class="col-xs-6 col-md-2">
@@ -17,7 +17,7 @@
         <div class="col-xs-6 col-md-2">
           <div class="form-group">
             <label for="date">Date</label>
-            <input type="date" class="form-control" aria-label="Date" name="date" />
+            <input type="date" class="form-control" aria-label="Date" name="date" value="<%= today %>" />
             <!--
             [ today ] [ yesterday ]<br />
             [ two days ago ]
@@ -70,7 +70,7 @@
               $('#tags').textcomplete([
                 {
                   words: <%= tags.to_json %>,
-                  match: /\b(\w{1,})$/,
+                  match: /\b([^,]{1,})$/,
                   search: function(term, callback) {
                     callback($.map(this.words, function(word) {
                       return word.toLowerCase().indexOf(term.toLowerCase()) >= 0 ? word : null;
@@ -133,7 +133,10 @@
           </td>
           <td><%= expense['date'] %></td>
           <td>
-              <%= expense['tags'].join(', ') %>
+              <% expense['tags'].each_with_index do |tag, idx| %>
+                <% link_url = url['tag'].gsub('%id%', tag['id'].to_s) %>
+                <a href="<%= link_url %>"><%= tag['name'] %></a><%= idx == expense['tags'].size - 1 ? '' : ',' %>
+              <% end %>
             <p class="text-muted">
               <%= expense['notes'] %>
             </p>
