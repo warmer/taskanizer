@@ -1,7 +1,7 @@
 <div class="panel panel-default">
   <div class="panel-heading"><h3 class="panel-title">Edit Tag</h3></div>
   <div class="panel-body">
-    <form method="post" action="<%= url['tag'].gsub('%id%', tag['id'].to_s) %>" class="form-horizontal">
+    <form method="post" action="<%= url['tag'].gsub(':id', tag['id'].to_s) %>" class="form-horizontal">
         <div class="form-group">
           <label for="name" class="col-sm-1 control-label">Tag name</label>
           <div class="col-sm-7">
@@ -34,14 +34,14 @@
           <% puts "Budget: #{budget}" %>
           <tr>
             <td>
-              <% link_url = url['budget_edit'].gsub('%id%', budget['id'].to_s) %>
+              <% link_url = url['budget_edit'].gsub(':id', budget['id'].to_s) %>
               <a href="<%= link_url %>"><%= budget['name'] %></a>
             </td>
             <td>
               $ <%= budget['amount'] %>
             </td>
             <td>
-              <% link_url = url['tag'].gsub('%id%', budget['tag']['id'].to_s) %>
+              <% link_url = url['tag'].gsub(':id', budget['tag']['id'].to_s) %>
               <a href="<%= link_url %>"><%= budget['tag']['name'] %></a>
             </td>
             <td>
@@ -77,7 +77,7 @@
         <% visible_expenses.each do |expense| %>
           <tr>
             <td>
-              <% link_url = url['expense_edit'].gsub('%id%', expense['id'].to_s) %>
+              <% link_url = url['expense_edit'].gsub(':id', expense['id'].to_s) %>
               <a href="<%= link_url %>">$ <%= expense['amount'] %></a>
             </td>
             <td>
@@ -86,7 +86,7 @@
             <td><%= expense['date'] %></td>
             <td>
                 <% expense['tags'].each_with_index do |tag, idx| %>
-                  <% link_url = url['tag'].gsub('%id%', tag['id'].to_s) %>
+                  <% link_url = url['tag'].gsub(':id', tag['id'].to_s) %>
                   <a href="<%= link_url %>"><%= tag['name'] %></a><%= idx == expense['tags'].size - 1 ? '' : ',' %>
                 <% end %>
               <p class="text-muted">

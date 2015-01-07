@@ -13,14 +13,14 @@
         <% puts "Budget: #{budget}" %>
         <tr>
           <td>
-            <% link_url = url['budget_edit'].gsub('%id%', budget['id'].to_s) %>
+            <% link_url = url['budget_edit'].gsub(':id', budget['id'].to_s) %>
             <a href="<%= link_url %>"><%= budget['name'] %></a>
           </td>
           <td>
             $ <%= budget['amount'] %>
           </td>
           <td>
-            <% link_url = url['tag'].gsub('%id%', budget['tag']['id'].to_s) %>
+            <% link_url = url['tag'].gsub(':id', budget['tag']['id'].to_s) %>
             <a href="<%= link_url %>"><%= budget['tag']['name'] %></a>
           </td>
           <td>

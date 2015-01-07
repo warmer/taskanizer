@@ -17,26 +17,28 @@ PATH_ROOT = '/'
 
 LOCATION_FILTER_REGEX = /[^a-zA-Z0-9\/,'\. #\$\*_\+!]/
 # do not allow commas in tags since we split on commas
-TAG_FILTER_REGEX = /[^a-zA-Z0-9\/\. #\$\*_\+!]/
+TAG_FILTER_REGEX = /[^a-zA-Z0-9\/'\. #\$\*_\+!]/
+
+URL = {
+  'expenses' => PATH_ROOT + 'expenses',
+  'expense_add' => PATH_ROOT + 'expense/add',
+  'expense_delete' => PATH_ROOT + 'expense/delete/:id',
+  'expense_edit' => PATH_ROOT + 'expense/edit/:id',
+
+  'budget' => PATH_ROOT + 'budget',
+  'budget_add' => PATH_ROOT + 'budget/add',
+  'budget_delete' => PATH_ROOT + 'budget/delete/:id',
+  'budget_edit' => PATH_ROOT + 'budget/edit/:id',
+
+  'tag' => PATH_ROOT + 'tag/:id',
+}
 
 class Fintrack < Sinatra::Base
 
   def agg_locals(overrides = {})
     locals = {
       # TODO: sinatra might have a mechanism for creating route-aware URLs...
-      'url' => {
-        'expenses' => PATH_ROOT + 'expenses',
-        'expense_add' => PATH_ROOT + 'expense/add',
-        'expense_delete' => PATH_ROOT + 'expense/delete/%id%',
-        'expense_edit' => PATH_ROOT + 'expense/edit/%id%',
-
-        'budget' => PATH_ROOT + 'budget',
-        'budget_add' => PATH_ROOT + 'budget/add',
-        'budget_delete' => PATH_ROOT + 'budget/delete/%id%',
-        'budget_edit' => PATH_ROOT + 'budget/edit/%id%',
-
-        'tag' => PATH_ROOT + 'tag/%id%',
-      }
+      'url' => URL,
     }
 
     locals.merge(overrides)
@@ -64,7 +66,7 @@ class Fintrack < Sinatra::Base
     puts "Location now #{location}"
     location = location.gsub(LOCATION_FILTER_REGEX, '')
     puts "Location finally #{location}"
-    result = execute_query "SELECT Id FROM #{LOCATION_TABLE} WHERE Name='#{location}';"
+    result = execute_query "SELECT Id FROM #{LOCATION_TABLE} WHERE Name LIKE '#{location}';"
 
     if result.size == 1
       id = result.flatten[0]
@@ -76,16 +78,16 @@ class Fintrack < Sinatra::Base
     id
   end
 
-  def tag_id(tag)
+  def tag_id(tag, add_if_not_exist = true)
     id = nil
     tag = tag.strip.gsub(/(['])/, '\'\1')
     tag = tag.gsub(TAG_FILTER_REGEX, '')
-    result = execute_query "SELECT Id FROM #{TAG_TABLE} WHERE Name='#{tag.downcase}';"
+    result = execute_query "SELECT Id FROM #{TAG_TABLE} WHERE Name LIKE '#{tag}';"
 
     if result.size == 1
       id = result.flatten[0]
-    elsif result.size == 0
-      vals = [tag]
+    elsif result.size == 0 and add_if_not_exist
+      vals = [tag.gsub("''", "'")]
       id = insert(TAG_TABLE, %w(Name), vals)
     end
 
@@ -111,10 +113,7 @@ class Fintrack < Sinatra::Base
     SQL
 
     result = result.map do |tag|
-      {
-        'id' => tag[0],
-        'name' => tag[1],
-      }
+      { 'id' => tag[0], 'name' => tag[1] }
     end
 
     result
@@ -403,7 +402,7 @@ class Fintrack < Sinatra::Base
     # TODO: delete budget?
     if params['confirm_delete'] and id > 0
       execute_query("DELETE FROM #{BUDGET_TABLE} WHERE Id=#{id};")
-      redirect to("#{PATH_ROOT}budget")
+      redirect to(URL['budget'])
     elsif params['do_update']
       budget_update(budget)
     else
@@ -419,20 +418,40 @@ class Fintrack < Sinatra::Base
   # POST
   #
 
-  post '/expense/add' do
+  post URL['expense_add'] do
     expense_edit(params)
   end
 
-  post '/expense/edit/:id' do
+  post URL['expense_edit'] do
     expense_edit(params)
   end
 
-  post '/budget/add' do
+  post URL['budget_add'] do
     budget_edit(params)
   end
 
-  post '/budget/edit/:id' do |id|
+  post URL['budget_edit'] do |id|
     budget_edit(params)
+  end
+
+  post URL['tag'] do |tag_id|
+    id = tag_id.to_i
+    if tag_id == id.to_s and id > 0
+      name = params['name'].gsub(TAG_FILTER_REGEX, '')
+      # see if any other tags have this name, but don't create a new tag
+      existing_id = tag_id(name, false)
+      if existing_id and existing_id != id
+        redirect_to(URL['tag'].gsub(':id', id.to_s) + '?name_collision=true')
+      else
+        # change the tag name
+        id = update(TAG_TABLE, %w(Name), [name], id)
+        # redirect
+        redirect to(URL['tag'].gsub(':id', id.to_s) + '?updated=true')
+      end
+    else
+      puts "id: #{id}; tag_id: #{tag_id}"
+      redirect to(URL['expenses'] + '?invalid_tag_id=true')
+    end
   end
 
   #
@@ -444,13 +463,14 @@ class Fintrack < Sinatra::Base
   end
 
   get '/' do
-      redirect to('/expenses')
+      redirect to(URL['expenses'])
   end
 
-  get '/expenses' do
+  get URL['expenses'] do
     messages = []
     messages << {'level' => 'success', 'body' => 'Expense has been added'} if params['expense_added']
     messages << {'level' => 'info', 'body' => 'Expense has been added'} if params['expense_deleted']
+    messages << {'level' => 'warning', 'body' => 'Invalid ID given for tag'} if params['invalid_tag_id']
     page_vars = {
       'visible_expenses' => expenses(params),
       'today' => date_today,
@@ -460,7 +480,7 @@ class Fintrack < Sinatra::Base
     erb :expenses, :locals => agg_locals(page_vars)
   end
 
-  get '/expense/edit/:id' do |id|
+  get URL['expense_edit'] do |id|
     messages = []
     messages << {'level' => 'success', 'body' => 'Expense has been upated'} if params['updated']
     page_vars = {
@@ -471,7 +491,7 @@ class Fintrack < Sinatra::Base
     erb :expense_edit, :locals => agg_locals(page_vars)
   end
 
-  get '/budget' do
+  get URL['budget'] do
     page_vars = {
       'visible_budgets' => budgets,
     }
@@ -479,17 +499,17 @@ class Fintrack < Sinatra::Base
     erb :budgets, :locals => agg_locals(page_vars)
   end
 
-  get '/budget/add' do
+  get URL['budget_add'] do
     budget_edit
   end
 
-  get '/budget/edit/:id' do |id|
+  get URL['budget_edit'] do |id|
     budget = budget_for(id)
 
     budget_edit(budget.merge(params))
   end
 
-  get '/tag/:id' do |id|
+  get URL['tag'] do |id|
     tag_name = tag_for(id)
     budget = budget_with_tag(id)
     expenses = expenses_with_tag(id)
@@ -498,7 +518,7 @@ class Fintrack < Sinatra::Base
     puts "Expenses for #{tag_name}: #{expenses}"
 
     messages = []
-    messages << {'level' => 'success', 'body' => 'Expense has been upated'} if params['updated']
+    messages << {'level' => 'success', 'body' => 'Tag updated'} if params['updated']
     page_vars = {
       'tag' => {'id' => id, 'name' => tag_name},
       'visible_budgets' => budget ? [budget] : [],

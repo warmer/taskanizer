@@ -123,7 +123,7 @@
       <% visible_expenses.each do |expense| %>
         <tr>
           <td>
-            <% link_url = url['expense_edit'].gsub('%id%', expense['id'].to_s) %>
+            <% link_url = url['expense_edit'].gsub(':id', expense['id'].to_s) %>
             <a href="<%= link_url %>">$ <%= expense['amount'] %></a>
           </td>
           <td>
@@ -134,7 +134,7 @@
           <td><%= expense['date'] %></td>
           <td>
               <% expense['tags'].each_with_index do |tag, idx| %>
-                <% link_url = url['tag'].gsub('%id%', tag['id'].to_s) %>
+                <% link_url = url['tag'].gsub(':id', tag['id'].to_s) %>
                 <a href="<%= link_url %>"><%= tag['name'] %></a><%= idx == expense['tags'].size - 1 ? '' : ',' %>
               <% end %>
             <p class="text-muted">
