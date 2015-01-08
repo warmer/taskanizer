@@ -127,9 +127,12 @@
             <a href="<%= link_url %>">$ <%= expense['amount'] %></a>
           </td>
           <td>
-            <%= expense['location'] %>
+            <% link_url = url['location'].gsub(':id', expense['location']['id'].to_s) %>
+            <a href="<%= link_url %>"><%= expense['location']['name'] %></a>
+            <!--
             <br />
             <span class="glyphicon glyphicon-filter"></span>Filter
+            -->
           </td>
           <td><%= expense['date'] %></td>
           <td>

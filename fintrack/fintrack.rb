@@ -31,6 +31,8 @@ URL = {
   'budget_edit' => PATH_ROOT + 'budget/edit/:id',
 
   'tag' => PATH_ROOT + 'tag/:id',
+
+  'location' => PATH_ROOT + 'location/:id',
 }
 
 class Fintrack < Sinatra::Base
@@ -60,7 +62,9 @@ class Fintrack < Sinatra::Base
     DateTime.now.strftime('%Y-%m-%d')
   end
 
-  def location_id(location)
+  def location_id(location, add_if_not_exist = true)
+    id = nil
+
     puts "Location starting with #{location}"
     location = location.strip.gsub(/(['])/, '\'\1')
     puts "Location now #{location}"
@@ -70,7 +74,7 @@ class Fintrack < Sinatra::Base
 
     if result.size == 1
       id = result.flatten[0]
-    elsif result.size == 0
+    elsif result.size == 0 and add_if_not_exist
       vals = [location.gsub("''", "'")]
       id = insert(LOCATION_TABLE, %w(Name), vals)
     end
@@ -120,8 +124,15 @@ class Fintrack < Sinatra::Base
   end
 
   def location_for(id)
+    location = {'name' => nil, 'id' => nil}
+
     result = execute_query "SELECT Name FROM #{LOCATION_TABLE} WHERE Id=#{id};"
-    result.flatten[0]
+    if result.size > 0
+      location['name'] = result.flatten[0]
+      location['id'] = id.to_i
+    end
+
+    location
   end
 
   def tag_for(id)
@@ -133,6 +144,7 @@ class Fintrack < Sinatra::Base
     start_date = opts['start_date'] || beginning_of_month
     end_date = opts['end_date'] || end_of_month
     ids = opts['ids']
+    location = opts['location_id']
 
     result = execute_query <<-SQL
       SELECT
@@ -140,7 +152,8 @@ class Fintrack < Sinatra::Base
       FROM #{EXPENSE_TABLE}
       WHERE Date >= #{start_date} and Date <= #{end_date}
         #{ids ? "and Id IN (#{ids.join(',')})" : ''}
-      ORDER BY Date ASC;
+        #{location ? "and Location=#{location}" : ''}
+      ORDER BY Date DESC;
     SQL
 
     result.map do |res|
@@ -218,6 +231,10 @@ class Fintrack < Sinatra::Base
   def expenses_with_tag(id)
     eids = execute_query("SELECT Expense FROM ExpenseTags WHERE Tag=#{id};").flatten
     expenses('start_date' => MIN_DATE, 'end_date' => MAX_DATE, 'ids' => eids)
+  end
+
+  def expenses_for_location(id)
+    expenses('start_date' => MIN_DATE, 'end_date' => MAX_DATE, 'location_id' => id)
   end
 
   def expense_for(id)
@@ -454,6 +471,26 @@ class Fintrack < Sinatra::Base
     end
   end
 
+  post URL['location'] do |loc_id|
+    id = loc_id.to_i
+    if loc_id == id.to_s and id > 0
+      name = params['name'].gsub(LOCATION_FILTER_REGEX, '')
+      # see if any other tags have this name, but don't create a new tag
+      existing_id = location_id(name, false)
+      if existing_id and existing_id != id
+        redirect_to(URL['location'].gsub(':id', id.to_s) + '?name_collision=true')
+      else
+        # change the tag name
+        id = update(LOCATION_TABLE, %w(Name), [name], id)
+        # redirect
+        redirect to(URL['location'].gsub(':id', id.to_s) + '?updated=true')
+      end
+    else
+      puts "id: #{id}; loc_id: #{loc_id}"
+      redirect to(URL['expenses'] + '?invalid_location_id=true')
+    end
+  end
+
   #
   # GET
   #
@@ -527,6 +564,23 @@ class Fintrack < Sinatra::Base
     }
 
     erb :tag, :locals => agg_locals(page_vars)
+  end
+
+  get URL['location'] do |id|
+    location = location_for(id)
+    expenses = expenses_for_location(id)
+
+    puts "Expenses for #{location['name']}: #{expenses}"
+
+    messages = []
+    messages << {'level' => 'success', 'body' => 'Tag updated'} if params['updated']
+    page_vars = {
+      'location' => location,
+      'visible_expenses' => expenses,
+      'messages' => messages,
+    }
+
+    erb :location, :locals => agg_locals(page_vars)
   end
 
 end
