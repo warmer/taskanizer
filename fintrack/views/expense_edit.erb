@@ -31,26 +31,7 @@
           <div class="form-group">
             <label for="location">at</label>
             <textarea class="form-control" rows="1" aria-label="Location" 
-              name="location" id="location" /><%= expense['location'] %></textarea>
-            <script>
-              $('#location').textcomplete([
-                {
-                  words: <%= locations.to_json %>,
-                  match: /^(\w{1,})$/,
-                  search: function(term, callback) {
-                    callback($.map(this.words, function(word) {
-                      return word
-                        .toLowerCase()
-                        .indexOf(term.toLowerCase()) >= 0 ? word : null;
-                    }));
-                  },
-                  index: 1,
-                  replace: function(word) {
-                    return word;
-                  }
-                }
-              ]);
-            </script>
+              name="location" id="location" /><%= expense['location']['name'] %></textarea>
           </div>
         </div>
 
@@ -58,24 +39,7 @@
           <div class="form-group">
             <label for="tags">Tags</label>
             <textarea class="form-control" rows="1"
-              aria-label="Tags" name="tags" id="tags" /><%= expense['tags'].join(', ') %></textarea>
-            <script>
-              $('#tags').textcomplete([
-                {
-                  words: <%= tags.to_json %>,
-                  match: /\b([^,]{1,})$/,
-                  search: function(term, callback) {
-                    callback($.map(this.words, function(word) {
-                      return word.toLowerCase().indexOf(term.toLowerCase()) === 0 ? word : null;
-                    }));
-                  },
-                  index: 1,
-                  replace: function(word) {
-                    return word + ', ';
-                  }
-                }
-              ]);
-            </script>
+              aria-label="Tags" name="tags" id="tags" /><%= expense['tags'].map{|t| t['name']}.join(', ') %></textarea>
           </div>
         </div>
 

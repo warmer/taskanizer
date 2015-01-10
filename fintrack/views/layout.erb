@@ -13,11 +13,80 @@
 
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="/js/jquery-2.1.0.min.js"></script>
+
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="/js/bootstrap.min.js"></script>
     <script src="/js/bootstrap-editable.js"></script>
+
     <!-- FROM: https://github.com/yuku-t/jquery-textcomplete -->
     <script src="/js/jquery.textcomplete.min.js"></script>
+
+    <!-- FROM: http://www.flotcharts.org/ -->
+    <script src="/js/jquery.flot.min.js"></script>
+    <script src="/js/jquery.flot.time.min.js"></script>
+
+    <script>
+      $(function() {
+        $('#location').textcomplete([
+          {
+            words: <%= locations.to_json %>,
+            match: /^(\w{1,})$/,
+            search: function(term, callback) {
+              callback($.map(this.words, function(word) {
+                return word
+                  .slice(0, -1)
+                  .toLowerCase()
+                  .indexOf(term.toLowerCase()) >= 0 ? word : null;
+              }));
+            },
+            index: 1,
+            replace: function(word) {
+              return word;
+            }
+          }
+        ]);
+
+        $('#tags').textcomplete([
+          {
+            words: <%= tags.to_json %>,
+            match: /\b([^,]{1,})$/,
+            search: function(term, callback) {
+              callback($.map(this.words, function(word) {
+                return word
+                  .toLowerCase()
+                  .indexOf(term.toLowerCase()) >= 0 ? word : null;
+              }));
+            },
+            index: 1,
+            replace: function(word) {
+              return word + ', ';
+            }
+          }
+        ]);
+
+        $('#tag').textcomplete([
+          {
+            words: <%= tags.to_json %>,
+            match: /\b([^,]{1,})$/,
+            search: function(term, callback) {
+              callback($.map(this.words, function(word) {
+                return word
+                  .slice(0, -1)
+                  .toLowerCase()
+                  .indexOf(term.toLowerCase()) >= 0 ? word : null;
+              }));
+            },
+            index: 1,
+            replace: function(word) {
+              return word;
+            }
+          }
+        ]);
+
+
+      });
+    </script>
+
 
     <style>
       /* Base styles (regardless of theme) */
@@ -58,6 +127,11 @@
       }
       .bs-callout-info h4 {
         color: #3A87AD;
+      }
+      .bottom-align-text {
+        position: absolute;
+        bottom: 0;
+        right: 0;
       }
     </style>
   </head>

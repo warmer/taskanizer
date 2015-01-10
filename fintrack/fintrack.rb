@@ -15,7 +15,7 @@ require_relative 'common.rb'
 
 PATH_ROOT = '/'
 
-LOCATION_FILTER_REGEX = /[^a-zA-Z0-9\/,'\. #\$\*_\+!]/
+LOCATION_FILTER_REGEX = /[^a-zA-Z0-9\/,'\. #\$\*_\-\+!]/
 # do not allow commas in tags since we split on commas
 TAG_FILTER_REGEX = /[^a-zA-Z0-9\/'\. #\$\*_\+!]/
 
@@ -44,6 +44,10 @@ class Fintrack < Sinatra::Base
     }
 
     locals.merge(overrides)
+  end
+
+  def js_time(date_string)
+    (DateTime.parse(date_string).strftime("%s") + '000').to_i
   end
 
   def beginning_of_month
@@ -141,10 +145,20 @@ class Fintrack < Sinatra::Base
   end
 
   def expenses(opts = {})
-    start_date = opts['start_date'] || beginning_of_month
-    end_date = opts['end_date'] || end_of_month
+    start_date = opts['start_date'] ? opts['start_date'] : beginning_of_month
+    end_date = opts['end_date'] ? opts['end_date'] : end_of_month
+    min_amount = nil
+    max_amount = nil
     ids = opts['ids']
     location = opts['location_id']
+
+    if opts['min_amount'] and opts['min_amount'].length > 0
+      min_amount = amount_ui2db(opts['min_amount'])
+    end
+
+    if opts['max_amount'] and opts['max_amount'].length > 0
+      max_amount = amount_ui2db(opts['min_amount'])
+    end
 
     result = execute_query <<-SQL
       SELECT
@@ -153,6 +167,8 @@ class Fintrack < Sinatra::Base
       WHERE Date >= #{start_date} and Date <= #{end_date}
         #{ids ? "and Id IN (#{ids.join(',')})" : ''}
         #{location ? "and Location=#{location}" : ''}
+        #{min_amount ? "and Amount >= #{min_amount}" : '' }
+        #{max_amount ? "and Amount <= #{min_amount}" : '' }
       ORDER BY Date DESC;
     SQL
 
@@ -171,10 +187,79 @@ class Fintrack < Sinatra::Base
       }
 
       map['date'] = "#{map['date'][0...4]}-#{map['date'][4...6]}-#{map['date'][6...8]}"
-      map['amount'] = sprintf("%0.2f", map['amount'].to_f / 100.0)
+      map['amount'] = amount_db2ui(map['amount'])
 
       map
     end
+  end
+
+  def expense_series(expenses, budget = nil)
+    expenses = expenses.sort { |a, b| a['date'] <=> b['date'] }
+    # set up for two series
+    series = {
+      per_day: [],
+      cumulative: [],
+      per_month: [],
+    }
+
+    day_sum = 0
+    month_sum = 0
+    total_sum = 0
+
+    last_date = 0
+    last_month = 0
+
+    expenses.each do |exp|
+      x = js_time(exp['date'])
+      month = exp['date'][0...7]
+      amt = exp['amount'].to_r
+      total_sum += amt
+
+      if month != last_month
+        puts "month: #{month}, last month: #{last_month}, exp['date']: #{exp['date']}"
+        month_sum = 0
+        last_month = month
+        if series[:per_month].size > 0
+          month_start = exp['date'][0...8] + '01'
+        else
+          month_start = exp['date']
+        end
+        series[:per_month] << [js_time(month_start), 0.0]
+      end
+
+      month_sum += amt
+
+      if x != last_date
+        day_sum = amt
+        series[:per_day] << [x, day_sum.to_f]
+        series[:cumulative] << [x, total_sum.to_f]
+        series[:per_month] << [x, month_sum.to_f]
+      else
+        day_sum += amt
+        series[:per_day][-1][1] = day_sum.to_f
+        series[:cumulative][-1][1] = total_sum.to_f
+        series[:per_month][-1][1] = month_sum.to_f
+      end
+
+      last_date = x
+    end
+
+    if expenses.size > 0
+      js_today = js_time(date_today) + 86400 * 1000/2
+      last_date = js_today if js_today > last_date
+
+      series[:cumulative] << [
+        last_date,
+        series[:cumulative][-1][1],
+      ]
+
+      series[:per_month] << [
+        last_date,
+        series[:per_month][-1][1],
+      ]
+    end
+
+    series
   end
 
   def budgets(opts = {})
@@ -427,7 +512,9 @@ class Fintrack < Sinatra::Base
         'budget' => budget,
       }
 
-      erb :budget_edit, :locals => agg_locals(page_vars)
+      erb :budget_edit, :locals => agg_locals(page_vars) do
+        erb :expense_table, :locals => agg_locals(page_vars)
+      end
     end
   end
 
@@ -458,7 +545,7 @@ class Fintrack < Sinatra::Base
       # see if any other tags have this name, but don't create a new tag
       existing_id = tag_id(name, false)
       if existing_id and existing_id != id
-        redirect_to(URL['tag'].gsub(':id', id.to_s) + '?name_collision=true')
+        redirect to(URL['tag'].gsub(':id', id.to_s) + '?name_collision=true')
       else
         # change the tag name
         id = update(TAG_TABLE, %w(Name), [name], id)
@@ -478,7 +565,7 @@ class Fintrack < Sinatra::Base
       # see if any other tags have this name, but don't create a new tag
       existing_id = location_id(name, false)
       if existing_id and existing_id != id
-        redirect_to(URL['location'].gsub(':id', id.to_s) + '?name_collision=true')
+        redirect to(URL['location'].gsub(':id', id.to_s) + '?name_collision=true')
       else
         # change the tag name
         id = update(LOCATION_TABLE, %w(Name), [name], id)
@@ -506,15 +593,34 @@ class Fintrack < Sinatra::Base
   get URL['expenses'] do
     messages = []
     messages << {'level' => 'success', 'body' => 'Expense has been added'} if params['expense_added']
-    messages << {'level' => 'info', 'body' => 'Expense has been added'} if params['expense_deleted']
+    messages << {'level' => 'info', 'body' => 'Expense deleted'} if params['expense_deleted']
     messages << {'level' => 'warning', 'body' => 'Invalid ID given for tag'} if params['invalid_tag_id']
-    page_vars = {
-      'visible_expenses' => expenses(params),
-      'today' => date_today,
-      'messages' => messages,
+
+    start_date = params['start_date'] ? params['start_date'] : date_db2ui(beginning_of_month)
+    end_date = params['end_date'] ? params['end_date'] : date_db2ui(end_of_month)
+    min_amount = params['min_amount']
+    max_amount = params['max_amount']
+
+    filters = {
+      'start_date' => start_date ? date_ui2db(start_date) : beginning_of_month,
+      'end_date' => end_date ? date_ui2db(end_date) : end_of_month,
+      'min_amount' => min_amount,
+      'max_amount' => max_amount,
     }
 
-    erb :expenses, :locals => agg_locals(page_vars)
+
+    page_vars = {
+      'visible_expenses' => expenses(filters),
+      'today' => date_today,
+      'messages' => messages,
+      'filters' => filters,
+      'filter_chart' => true,
+    }
+
+    erb :expenses, :locals => agg_locals(page_vars) do
+      erb :expense_table, :locals => agg_locals(page_vars)
+    end
+
   end
 
   get URL['expense_edit'] do |id|
@@ -525,7 +631,10 @@ class Fintrack < Sinatra::Base
       'messages' => messages,
     }
 
-    erb :expense_edit, :locals => agg_locals(page_vars)
+    erb :expense_edit, :locals => agg_locals(page_vars) do
+      erb :expense_table, :locals => agg_locals(page_vars)
+    end
+
   end
 
   get URL['budget'] do
@@ -556,6 +665,10 @@ class Fintrack < Sinatra::Base
 
     messages = []
     messages << {'level' => 'success', 'body' => 'Tag updated'} if params['updated']
+    messages << {
+      'level' => 'warning',
+      'body' => 'Cannot change name: another tag already has this name'
+    } if params['name_collision']
     page_vars = {
       'tag' => {'id' => id, 'name' => tag_name},
       'visible_budgets' => budget ? [budget] : [],
@@ -563,7 +676,9 @@ class Fintrack < Sinatra::Base
       'messages' => messages,
     }
 
-    erb :tag, :locals => agg_locals(page_vars)
+    erb :tag, :locals => agg_locals(page_vars) do
+      erb :expense_table, :locals => agg_locals(page_vars)
+    end
   end
 
   get URL['location'] do |id|
@@ -574,13 +689,19 @@ class Fintrack < Sinatra::Base
 
     messages = []
     messages << {'level' => 'success', 'body' => 'Tag updated'} if params['updated']
+    messages << {
+      'level' => 'warning',
+      'body' => 'Cannot change name: another location already has this name'
+    } if params['name_collision']
     page_vars = {
       'location' => location,
       'visible_expenses' => expenses,
       'messages' => messages,
     }
 
-    erb :location, :locals => agg_locals(page_vars)
+    erb :location, :locals => agg_locals(page_vars) do
+      erb :expense_table, :locals => agg_locals(page_vars)
+    end
   end
 
 end

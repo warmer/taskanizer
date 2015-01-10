@@ -1,6 +1,10 @@
+<!-- TODO: make this panel collapsible -->
 <div class="panel panel-default">
-  <div class="panel-heading"><h3 class="panel-title">Add or Edit a Budget</h3></div>
-  <div class="panel-body">
+  <div class="panel-heading">
+    <h3 class="panel-title">
+      Edit Budget
+    </h3></div>
+  <div class="panel-body" id="edit-panel">
     <% id = budget['id'] %>
     <% post_action = id > 0 ? url['budget_edit'].gsub(':id', id.to_s) : url['budget_add'] %>
     <form method="post" action="<%= post_action %>">
@@ -71,23 +75,6 @@
             <label for="tag">Tag</label>
             <textarea class="form-control" rows="1"
               aria-label="Tag" name="tag" id="tag" /><%= budget['tag']['name'] %></textarea>
-            <script>
-              $('#tag').textcomplete([
-                {
-                  words: <%= tags.to_json %>,
-                  match: /\b([^,]{1,})$/,
-                  search: function(term, callback) {
-                    callback($.map(this.words, function(word) {
-                      return word.toLowerCase().indexOf(term.toLowerCase()) >= 0 ? word : null;
-                    }));
-                  },
-                  index: 1,
-                  replace: function(word) {
-                    return word;
-                  }
-                }
-              ]);
-            </script>
           </div>
         </div>
       </div>

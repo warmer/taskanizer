@@ -1,6 +1,11 @@
 <div class="panel panel-default">
-  <div class="panel-heading"><h3 class="panel-title">Edit Tag</h3></div>
-  <div class="panel-body">
+  <div class="panel-heading">
+    <h3 class="panel-title">
+    <a data-toggle="collapse" href="#edit-panel" aria-expanded="false" aria-controls="edit-panel">
+      Edit Tag
+    </a>
+    </h3></div>
+  <div class="panel-body collapse" id="edit-panel">
     <form method="post" action="<%= url['tag'].gsub(':id', tag['id'].to_s) %>" class="form-horizontal">
         <div class="form-group">
           <label for="name" class="col-sm-1 control-label">Tag name</label>
@@ -18,7 +23,7 @@
 
 <% if defined?(visible_budgets) and visible_budgets and visible_budgets.size > 0 %>
 <div class="panel panel-default">
-  <div class="panel-heading"><h3 class="panel-title">Budgets Associated with Tag</h3></div>
+  <div class="panel-heading"><h3 class="panel-title">Budget Associated with Tag</h3></div>
   <div class="panel-body">
     <table class="table table-striped table-condensed">
       <thead>
@@ -26,7 +31,7 @@
           <th>Name</th>
           <th>Amount</th>
           <th>Tag</th>
-          <th>Period<br />Start - End</th>
+          <th>Period<br />Start, End</th>
         </tr>
       </thead>
       <tbody>
@@ -35,7 +40,8 @@
           <tr>
             <td>
               <% link_url = url['budget_edit'].gsub(':id', budget['id'].to_s) %>
-              <a href="<%= link_url %>"><%= budget['name'] %></a>
+              <%= budget['name'] %>
+              (<a href="<%= link_url %>">Edit</a>)
             </td>
             <td>
               $ <%= budget['amount'] %>
@@ -58,47 +64,6 @@
 </div>
 <% end %>
 
-
-
-<% if defined?(visible_expenses) %>
-<div class="panel panel-default">
-  <div class="panel-heading"><h3 class="panel-title">Expenses Associated with Tag</h3></div>
-  <div class="panel-body">
-    <table class="table table-striped table-condensed">
-      <thead>
-        <tr>
-          <th>Amount</th>
-          <th>Location</th>
-          <th>Date</th>
-          <th>Tags/Notes</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% visible_expenses.each do |expense| %>
-          <tr>
-            <td>
-              <% link_url = url['expense_edit'].gsub(':id', expense['id'].to_s) %>
-              <a href="<%= link_url %>">$ <%= expense['amount'] %></a>
-            </td>
-            <td>
-              <% link_url = url['location'].gsub(':id', expense['location']['id'].to_s) %>
-              <a href="<%= link_url %>"><%= expense['location']['name'] %></a>
-            </td>
-            <td><%= expense['date'] %></td>
-            <td>
-                <% expense['tags'].each_with_index do |tag, idx| %>
-                  <% link_url = url['tag'].gsub(':id', tag['id'].to_s) %>
-                  <a href="<%= link_url %>"><%= tag['name'] %></a><%= idx == expense['tags'].size - 1 ? '' : ',' %>
-                <% end %>
-              <p class="text-muted">
-                <%= expense['notes'] %>
-              </p>
-            </td>
-          </tr>
-        <% end %>
-      </tbody>
-    </table>
-  </div>
-</div>
-<% end %>
+<%# Expense table %>
+<%= yield %>
 
