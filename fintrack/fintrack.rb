@@ -46,26 +46,6 @@ class Fintrack < Sinatra::Base
     locals.merge(overrides)
   end
 
-  def js_time(date_string)
-    (DateTime.parse(date_string).strftime("%s") + '000').to_i
-  end
-
-  def beginning_of_month
-    Date.civil(Date.today.year, Date.today.month, 1).strftime("#{DATE_FORMAT}000000")
-  end
-
-  def end_of_month
-    Date.civil(Date.today.year, Date.today.month, -1).strftime("#{DATE_FORMAT}235959")
-  end
-
-  def current_datetime
-    DateTime.now.strftime("#{DATE_FORMAT}#{TIME_FORMAT}")
-  end
-
-  def date_today
-    DateTime.now.strftime('%Y-%m-%d')
-  end
-
   def location_id(location, add_if_not_exist = true)
     id = nil
 
@@ -200,7 +180,11 @@ class Fintrack < Sinatra::Base
       per_day: [],
       cumulative: [],
       per_month: [],
+      spend_trend: [],
+      budget_line: [],
     }
+
+    months = 0
 
     day_sum = 0
     month_sum = 0
@@ -216,22 +200,26 @@ class Fintrack < Sinatra::Base
       total_sum += amt
 
       if month != last_month
-        puts "month: #{month}, last month: #{last_month}, exp['date']: #{exp['date']}"
-        month_sum = 0
-        last_month = month
         if series[:per_month].size > 0
           month_start = exp['date'][0...8] + '01'
+          series[:spend_trend] << [js_time(month_start), month_sum.to_f]
         else
           month_start = exp['date']
         end
+
         series[:per_month] << [js_time(month_start), 0.0]
+        series[:spend_trend] << [js_time(month_start), 0.0]
+
+        month_sum = 0
+        last_month = month
+        months += 1
       end
 
       month_sum += amt
 
       if x != last_date
         day_sum = amt
-        series[:per_day] << [x, day_sum.to_f]
+        series[:per_day] << [x + 86400000 / 2, day_sum.to_f]
         series[:cumulative] << [x, total_sum.to_f]
         series[:per_month] << [x, month_sum.to_f]
       else
@@ -245,15 +233,24 @@ class Fintrack < Sinatra::Base
     end
 
     if expenses.size > 0
-      js_today = js_time(date_today) + 86400 * 1000/2
+      js_today = js_time(date_today) + 23*3600 * 1000
       last_date = js_today if js_today > last_date
 
-      series[:cumulative] << [
-        last_date,
-        series[:cumulative][-1][1],
-      ]
+      if months <= 1
+        series.delete(:cumulative)
+      else
+        series[:cumulative] << [
+          last_date,
+          series[:cumulative][-1][1],
+        ]
+      end
 
       series[:per_month] << [
+        last_date,
+        series[:per_month][-1][1],
+      ]
+
+      series[:spend_trend] << [
         last_date,
         series[:per_month][-1][1],
       ]
@@ -669,6 +666,7 @@ class Fintrack < Sinatra::Base
       'level' => 'warning',
       'body' => 'Cannot change name: another tag already has this name'
     } if params['name_collision']
+
     page_vars = {
       'tag' => {'id' => id, 'name' => tag_name},
       'visible_budgets' => budget ? [budget] : [],
@@ -693,6 +691,7 @@ class Fintrack < Sinatra::Base
       'level' => 'warning',
       'body' => 'Cannot change name: another location already has this name'
     } if params['name_collision']
+
     page_vars = {
       'location' => location,
       'visible_expenses' => expenses,

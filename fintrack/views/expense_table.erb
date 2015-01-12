@@ -2,7 +2,7 @@
 
 <% if defined?(visible_expenses) and visible_expenses %>
 <div class="panel panel-default">
-  <div class="panel-heading"><h3 class="panel-title">Expenses Associated with Tag</h3></div>
+  <div class="panel-heading"><h3 class="panel-title">Expenses</h3></div>
   <div class="panel-body">
     <% if defined?(filter_chart) and filter_chart %>
       <a class="" data-toggle="collapse" href="#filter_box"
@@ -79,6 +79,7 @@
                 bars: {show: true, align: 'center', barWidth: 86400000/1.2},
               },
               <% end %>
+
               <% if series[:cumulative] %>
               {
                 data: <%= series[:cumulative].to_json %>,
@@ -86,11 +87,20 @@
                 lines: {show: true, steps: true},
               },
               <% end %>
+
               <% if series[:per_month] %>
               {
                 data: <%= series[:per_month].to_json %>,
                 label: 'Per Month',
                 lines: {show: true, steps: true},
+              },
+              <% end %>
+
+              <% if series[:spend_trend] and false %>
+              {
+                data: <%= series[:spend_trend].to_json %>,
+                label: 'Spending Trend',
+                lines: {show: true},
               },
               <% end %>
             ],

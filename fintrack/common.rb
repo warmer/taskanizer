@@ -37,6 +37,26 @@ def amount_db2ui(amount)
   sprintf('%0.2f', amount.to_f / 100.0)
 end
 
+def js_time(date_string)
+  (DateTime.parse(date_string).strftime("%s") + '000').to_i
+end
+
+def beginning_of_month
+  Date.civil(Date.today.year, Date.today.month, 1).strftime("#{DATE_FORMAT}000000")
+end
+
+def end_of_month
+  Date.civil(Date.today.year, Date.today.month, -1).strftime("#{DATE_FORMAT}235959")
+end
+
+def current_datetime
+  DateTime.now.strftime("#{DATE_FORMAT}#{TIME_FORMAT}")
+end
+
+def date_today
+  DateTime.now.strftime('%Y-%m-%d')
+end
+
 def execute_query(query)
   result = nil
 
