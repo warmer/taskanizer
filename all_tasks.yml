@@ -15,7 +15,7 @@
   owner: Tatyana
   id: 2
   duration: 15 minutes
-  status: reopened
+  status: finished
 - location: Garage
   item: Find home for parts within the Fluidmaster boxes
   owner: Kenneth
@@ -23,8 +23,8 @@
   duration: 15 minutes
   status: finished
 - location: Garage
-  item: Clean welcome mat
-  owner: Kenneth
+  item: Buy welcome mat
+  owner: Tatyana
   id: 4
   duration: 15 minutes
 - location: Garage
@@ -32,6 +32,7 @@
   owner: Kenneth
   id: 5
   duration: all day
+  status: finished
 - location: Garage
   item: Assemble emergency kit for car
   owner: Tatyana
@@ -48,6 +49,7 @@
   owner: Tatyana
   id: 8
   duration: 3 hours
+  status: finished
 - location: Back Patio
   item: Move chairs to 3rd floor balcony
   owner: Tatyana
@@ -59,6 +61,7 @@
   owner: Both
   id: 10
   duration: 1 hour
+  status: finished
 - location: Kitchen
   item: Drill hole for RO filter
   owner: Both
@@ -153,10 +156,11 @@
   duration: 15 minutes
   status: finished
 - location: Dining Area
-  item: Move Bissel items upstairs
+  item: Clean and return Bissel items upstairs
   owner: Tatyana
   id: 27
   duration: 15 minutes
+  status: finished
 - location: Dining Area
   item: Mount closet light
   owner: Kenneth
@@ -168,11 +172,13 @@
   owner: Tatyana
   id: 29
   duration: 3 hours
+  status: finished
 - location: Dining Area
   item: Organize laundry area
   owner: Tatyana
   id: 30
   duration: 1 hour
+  status: finished
 - location: Dining Area
   item: Hang photograph
   owner: Kenneth
@@ -227,7 +233,7 @@
   owner: Kenneth
   id: 40
   duration: 1 hour
-  status: in_progress
+  status: finished
 - location: Living room
   item: Purchase umbrella holder
   owner: Tatyana
@@ -239,6 +245,7 @@
   owner: Both
   id: 42
   duration: 15 minutes
+  status: finished
 - location: Living room
   item: Install smoke/fire detectors
   owner: Kenneth
@@ -287,14 +294,16 @@
   owner: Tatyana
   id: 51
 - location: Stairs/Hallway
-  item: Purchase and change light bulb in hall lamp
+  item: Install hallway lights
   owner: Kenneth
   id: 52
   duration: 1 hour
+  status: finished
 - location: Stairs/Hallway
   item: Research recycling options (cardboard, batteries, etc)
   owner: Tatyana
   id: 53
+  status: finished
 - location: Stairs/Hallway
   item: Fix doorbell
   owner: Kenneth
@@ -316,6 +325,7 @@
   item: Purchase sleeper couch
   owner: Tatyana
   id: 57
+  status: finished
 - location: TK/TV Room
   item: Move rocker to downstairs
   owner: Tatyana
@@ -335,6 +345,7 @@
   item: Frame photograph of WA mountains
   owner: Tatyana
   id: 61
+  status: in_progress
 - location: TK/TV Room
   item: Purchase hardware for properly passing cable through wall
   owner: Kenneth
@@ -357,6 +368,7 @@
   owner: Both
   id: 65
   duration: 3 hours
+  status: finished
 - location: TK/TV Room
   item: Organize tax receipts
   owner: Both
@@ -368,6 +380,7 @@
   owner: Both
   id: 67
   duration: 3 hours
+  status: in_progress
 - location: TK/TV Room
   item: Post coins on eBay
   owner: Tatyana
@@ -475,6 +488,7 @@
   owner: Kenneth
   id: 86
   duration: 3 hours
+  status: in_progress
 - location: Ken's Office
   item: Hang diploma
   owner: Kenneth
@@ -490,11 +504,13 @@
   owner: Tatyana
   id: 89
   duration: 1 hour
+  status: finished
 - location: Guest bathroom
   item: Swap shower head
   owner: Kenneth
   id: 90
   duration: 15 minutes
+  status: finished
 - location: Guest bathroom
   item: Clean shower
   owner: Tatyana
@@ -510,7 +526,7 @@
   item: Fix door to bedroom
   owner: Kenneth
   id: 93
-  duration: 1 hour
+  duration: 3 hours
 - location: Guest bathroom
   item: Change light fixture above sink
   owner: Both
@@ -521,6 +537,7 @@
   owner: Both
   id: 95
   duration: 1 hour
+  status: finished
 - location: Master bedroom
   item: Organize Ken's closet
   owner: Kenneth
@@ -547,6 +564,7 @@
   item: Purchase vanity for TK's bed side
   owner: Tatyana
   id: 100
+  status: finished
 - location: Master bedroom
   item: Install fire extinguisher
   owner: Both
@@ -567,6 +585,7 @@
   owner: Tatyana
   id: 104
   duration: 15 minutes
+  status: finished
 - location: Master bedroom
   item: Move chairs onto patio
   owner: Tatyana
@@ -600,11 +619,13 @@
   owner: Kenneth
   id: 110
   duration: 15 minutes
+  status: finished
 - location: Master bedroom
   item: Return Bissel appliances to Andrey
   owner: Tatyana
   id: 111
   duration: 1 hour
+  status: finished
 - location: Master bedroom
   item: Make/buy bed skirt
   owner: Tatyana
@@ -621,6 +642,7 @@
   owner: Kenneth
   id: 114
   duration: 15 minutes
+  status: finished
 - location: Master bathroom
   item: Purchase towels, maybe
   owner: Kenneth
@@ -661,11 +683,13 @@
   owner: Tatyana
   id: 121
   duration: 15 minutes
+  status: finished
 - location: Master bathroom
   item: Install shower handle
   owner: Kenneth
   id: 122
   duration: 15 minutes
+  status: finished
 - location: Master bathroom
   item: Fix mirror border
   owner: Kenneth
@@ -681,11 +705,13 @@
   owner: Tatyana
   id: 125
   duration: 1 hour
+  status: finished
 - location: Master bathroom
   item: Investigate options for better window privacy
   owner: Kenneth
   id: 126
   duration: 1 hour
+  status: finished
 - location: TK's Closet
   item: Clean home automation wiring
   owner: Kenneth
@@ -701,3 +727,8 @@
   owner: Both
   id: 129
   duration: all day
+- item: Set up the rest of the surround sound system
+  duration: 15 minutes
+  location: TK,TV Room
+  owner: 
+  id: 130
