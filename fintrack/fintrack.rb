@@ -36,7 +36,7 @@ URL = {
 }
 
 class Fintrack < Sinatra::Base
-
+  set :public_folder, File.join(File.dirname(__FILE__), 'public')
   def agg_locals(overrides = {})
     locals = {
       # TODO: sinatra might have a mechanism for creating route-aware URLs...

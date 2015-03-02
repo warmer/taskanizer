@@ -61,7 +61,8 @@ def execute_query(query)
   result = nil
 
   begin
-    db = SQLite3::Database.open DATABASE_FILE
+    path = File.join(File.dirname(__FILE__), DATABASE_FILE)
+    db = SQLite3::Database.open path
 
     puts "Executing: #{query}"
     result = db.execute query
@@ -128,7 +129,8 @@ def insert(table, columns, values)
   val_args = (['?'] * columns.size).join(',')
 
   begin
-    db = SQLite3::Database.open DATABASE_FILE
+    path = File.join(File.dirname(__FILE__), DATABASE_FILE)
+    db = SQLite3::Database.open path
 
     prep = "insert into #{table} (#{cols}) values (#{val_args});"
     puts "Prepared: #{prep}"
