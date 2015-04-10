@@ -94,7 +94,8 @@ def update(table, columns, values, id)
   cols = columns.map {|c| "'#{c}'=?"}.join(', ')
 
   begin
-    db = SQLite3::Database.open DATABASE_FILE
+    path = File.join(File.dirname(__FILE__), DATABASE_FILE)
+    db = SQLite3::Database.open path
 
     prep = "update #{table} set #{cols} where Id=#{id};"
     puts "Prepared: #{prep}"
