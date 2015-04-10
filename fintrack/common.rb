@@ -64,7 +64,7 @@ def execute_query(query)
     path = File.join(File.dirname(__FILE__), DATABASE_FILE)
     db = SQLite3::Database.open path
 
-    puts "Executing: #{query}"
+    puts "Executing: #{query}" if @verbose
     result = db.execute query
   rescue SQLite3::Exception => e
     puts 'SQLite Exception'
@@ -97,7 +97,7 @@ def update(table, columns, values, id)
     db = SQLite3::Database.open DATABASE_FILE
 
     prep = "update #{table} set #{cols} where Id=#{id};"
-    puts "Prepared: #{prep}"
+    puts "Prepared: #{prep}" if @verbose
 
     statement = db.prepare prep
     statement.execute(values)
@@ -137,11 +137,11 @@ def insert(table, columns, values)
 
     ins = db.prepare prep
 
-    puts "Inserting: #{values}"
+    puts "Inserting: #{values}" if @verbose
     ins.execute(values)
     ins.close
     result = db.last_insert_row_id
-    puts "Insert result: #{result}"
+    puts "Insert result: #{result}" if @verbose
   rescue SQLite3::Exception => e
     puts 'SQLite Exception'
     puts e
