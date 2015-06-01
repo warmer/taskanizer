@@ -5,6 +5,7 @@
 #
 
 require 'sqlite3'
+require 'sinatra' # for Date.today
 
 DATABASE_FILE = 'db/fintrack.db'
 
@@ -39,6 +40,10 @@ end
 
 def js_time(date_string)
   (DateTime.parse(date_string).strftime("%s") + '000').to_i
+end
+
+def beginning_of_prev_month
+  (Date.civil(Date.today.year, Date.today.month) - 1).strftime("%Y%m01000000")
 end
 
 def beginning_of_month

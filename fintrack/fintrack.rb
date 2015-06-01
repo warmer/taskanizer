@@ -593,13 +593,13 @@ class Fintrack < Sinatra::Base
     messages << {'level' => 'info', 'body' => 'Expense deleted'} if params['expense_deleted']
     messages << {'level' => 'warning', 'body' => 'Invalid ID given for tag'} if params['invalid_tag_id']
 
-    start_date = params['start_date'] ? params['start_date'] : date_db2ui(beginning_of_month)
+    start_date = params['start_date'] ? params['start_date'] : date_db2ui(beginning_of_prev_month)
     end_date = params['end_date'] ? params['end_date'] : date_db2ui(end_of_month)
     min_amount = params['min_amount']
     max_amount = params['max_amount']
 
     filters = {
-      'start_date' => start_date ? date_ui2db(start_date) : beginning_of_month,
+      'start_date' => start_date ? date_ui2db(start_date) : beginning_of_prev_month,
       'end_date' => end_date ? date_ui2db(end_date) : end_of_month,
       'min_amount' => min_amount,
       'max_amount' => max_amount,
